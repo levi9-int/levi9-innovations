@@ -15,9 +15,16 @@ import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.s3.BlockPublicAccess;
+import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.s3.BucketAccessControl;
+import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
+import software.amazon.awscdk.services.s3.deployment.ISource;
+import software.amazon.awscdk.services.s3.deployment.Source;
 import software.amazon.awscdk.services.stepfunctions.IStateMachine;
 import software.constructs.Construct;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +40,11 @@ public class InfraStack extends Stack {
         super(scope, id, props);
 
         Function springBootFunction = Function.Builder.create(this, "SubmitInnovationLambda")
-                .runtime(Runtime.JAVA_11)
                 .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
                 .memorySize(1024)
                 .timeout(Duration.seconds(20))
-                .functionName("StreamLambdaHandler")
-                .code(Code.fromAsset("../assets/LambdaOne.jar"))
+                .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
                 .build();
 
         // Enable Snapstart
@@ -46,15 +52,30 @@ public class InfraStack extends Stack {
         cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
         RestApi api = RestApi.Builder.create(this, "MyRestApi")
-                .restApiName("My Rest API")
-                .description("This is my REST API")
+                .description("This is REST API")
                 .defaultCorsPreflightOptions(CorsOptions.builder()
                         .allowCredentials(true)
-                            .allowOrigins(singletonList("*")).build())
+                        .allowOrigins(singletonList("*")).build())
                 .build();
 
         Resource resource = api.getRoot().addResource("add-innovation");
         resource.addMethod("POST", new LambdaIntegration(springBootFunction));
+
+        Bucket siteBucket = Bucket.Builder.create(this, "AngularBucket")
+                .websiteIndexDocument("index.html")
+                .publicReadAccess(true)
+                .blockPublicAccess(BlockPublicAccess.BLOCK_ACLS)
+                .accessControl(BucketAccessControl.BUCKET_OWNER_FULL_CONTROL)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .autoDeleteObjects(true)
+                .build();
+
+        List<ISource> sources = new ArrayList<>(1);
+        sources.add(Source.asset("../frontend/dist/frontend"));
+
+        BucketDeployment.Builder.create(this, "DeployAngularApp")
+                .sources(sources)
+                .destinationBucket(siteBucket).build();
 
         // Deploy the REST API to a stage
 //        Deployment deployment = Deployment.Builder.create(this, "MyDeployment")
