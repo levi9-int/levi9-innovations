@@ -16,7 +16,6 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
     static {
         try {
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA");
             handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(App.class);
 
             // If you are using HTTP APIs with the version 2.0 of the proxy model, use the getHttpApiV2ProxyHandler
@@ -31,8 +30,6 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
             throws IOException {
-        System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBB");
-
         handler.proxyStream(inputStream, outputStream, context);
     }
 }
