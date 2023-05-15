@@ -37,6 +37,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
+      <version>1.12.326</version>
+      <scope>compile</scope>
+    </dependency>
+
     <!--        <dependency>-->
     <!--            <groupId>com.amazonaws</groupId>-->
     <!--            <artifactId>aws-lambda-java-log4j2</artifactId>-->

@@ -11,6 +11,10 @@ import software.amazon.awscdk.services.apigatewayv2.alpha.HttpMethod;
 import software.amazon.awscdk.services.apigatewayv2.alpha.PayloadFormatVersion;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegration;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegrationProps;
+import software.amazon.awscdk.services.dynamodb.Attribute;
+import software.amazon.awscdk.services.dynamodb.AttributeType;
+import software.amazon.awscdk.services.dynamodb.Table;
+import software.amazon.awscdk.services.dynamodb.TableProps;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
@@ -39,6 +43,24 @@ public class InfraStack extends Stack {
     public InfraStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
+        //tabela za inovaciju
+        //builder i stack su povezani dynamob tabelom i mapperom znaci mapper se koristi i ovde kasa koristimmo grantRead....
+        //koristimo upis citanje... sve crud operacije koje su inicijalizovane u mepperu
+
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("innovationId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("innovation")
+                .build();
+        Table primerDynamoDbTable = new Table(this, "innovation", tableProps);
+
+
+
         Function springBootFunction = Function.Builder.create(this, "SubmitInnovationLambda")
                 .handler("org.example.StreamLambdaHandler")
                 .runtime(Runtime.JAVA_11)
@@ -50,6 +72,8 @@ public class InfraStack extends Stack {
         // Enable Snapstart
         CfnFunction cfnFunction = (CfnFunction) springBootFunction.getNode().getDefaultChild();
         cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        primerDynamoDbTable.grantReadWriteData(springBootFunction);
 
         RestApi api = RestApi.Builder.create(this, "MyRestApi")
                 .description("This is REST API")
@@ -63,6 +87,7 @@ public class InfraStack extends Stack {
 
         Bucket siteBucket = Bucket.Builder.create(this, "AngularBucket")
                 .websiteIndexDocument("index.html")
+                .websiteErrorDocument("index.html")
                 .publicReadAccess(true)
                 .blockPublicAccess(BlockPublicAccess.BLOCK_ACLS)
                 .accessControl(BucketAccessControl.BUCKET_OWNER_FULL_CONTROL)
