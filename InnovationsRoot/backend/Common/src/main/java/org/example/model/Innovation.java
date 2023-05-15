@@ -33,10 +33,11 @@ public class Innovation {
     @DynamoDBAttribute
     private String comment;
 
-    public Innovation(String title, String description, InnovationStatus status) {
+    public Innovation(String title, String description, InnovationStatus status, String userId) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.userId = userId;
     }
 
 }

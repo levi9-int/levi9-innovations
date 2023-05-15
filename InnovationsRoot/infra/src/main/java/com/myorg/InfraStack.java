@@ -43,42 +43,27 @@ public class InfraStack extends Stack {
     public InfraStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        TableProps tableProps = TableProps.builder()
-                .partitionKey(Attribute.builder()
-                        .name("innovationId")
-                        .type(AttributeType.STRING)
-                        .build())
-                .readCapacity(1)
-                .writeCapacity(1)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .tableName("innovation")
-                .build();
-        Table primerDynamoDbTable = new Table(this, "innovation", tableProps);
+        Bucket siteBucket = buildS3Bucket();
 
-        Function springBootFunction = Function.Builder.create(this, "SubmitInnovationLambda")
-                .handler("org.example.StreamLambdaHandler")
-                .runtime(Runtime.JAVA_11)
-                .memorySize(1024)
-                .timeout(Duration.seconds(20))
-                .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
-                .build();
+        Table innovationTable = buildInnovationTable();
 
-        // Enable Snapstart
-        CfnFunction cfnFunction = (CfnFunction) springBootFunction.getNode().getDefaultChild();
-        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+        Function submitInnovationLambda = buildSubmitInnovationLambda();
+        innovationTable.grantReadWriteData(submitInnovationLambda);
 
-        primerDynamoDbTable.grantReadWriteData(springBootFunction);
+        Function approveDeclineInnovationLambda = buildApproveDeclineLambda();
+        innovationTable.grantReadWriteData(submitInnovationLambda);
 
-        RestApi api = RestApi.Builder.create(this, "MyRestApi")
-                .description("This is REST API")
-                .defaultCorsPreflightOptions(CorsOptions.builder()
-                        .allowCredentials(true)
-                        .allowOrigins(singletonList("*")).build())
-                .build();
+        RestApi api = buildApiGateway();
+        api.getRoot()
+                .addResource("add-innovation")
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda));
 
-        Resource resource = api.getRoot().addResource("add-innovation");
-        resource.addMethod("POST", new LambdaIntegration(springBootFunction));
+        api.getRoot()
+                .addResource("review-innovation")
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda));
+    }
 
+    private Bucket buildS3Bucket() {
         Bucket siteBucket = Bucket.Builder.create(this, "AngularBucket")
                 .websiteIndexDocument("index.html")
                 .websiteErrorDocument("index.html")
@@ -96,6 +81,18 @@ public class InfraStack extends Stack {
                 .sources(sources)
                 .destinationBucket(siteBucket).build();
 
+        return siteBucket;
+    }
+
+    private RestApi buildApiGateway() {
+
+        return RestApi.Builder.create(this, "MyRestApi")
+                .description("This is REST API")
+                .defaultCorsPreflightOptions(CorsOptions.builder()
+                        .allowCredentials(true)
+                        .allowOrigins(singletonList("*")).build())
+                .build();
+
         // Deploy the REST API to a stage
 //        Deployment deployment = Deployment.Builder.create(this, "MyDeployment")
 //                .api(api)
@@ -106,45 +103,51 @@ public class InfraStack extends Stack {
 //                .deployment(deployment)
 //                .stageName("testStage")
 //                .build();
+    }
 
-//        RestApi restApi = RestApi.Builder.create(this, "RestApi")
-//                .restApiName("MyRestApi")
-//                .build();
-//
-//        restApi.getRoot().addMethod("GET", StepFunctionsIntegration.startExecution((IStateMachine) springBootFunction));
-//        restApi.root.addMethod("GET", StepFunctionsIntegration.startExecution(stateMachine));
-//
-////        HttpApi httpApi = new HttpApi(this, "HttpApi");
-//
-//
-//        HttpLambdaIntegration httpLambdaIntegration = new HttpLambdaIntegration(
-//                "this",
-//                springBootFunction,
-//                HttpLambdaIntegrationProps.builder()
-//                        .payloadFormatVersion(PayloadFormatVersion.VERSION_2_0)
-//                        .build()
-//        );
-//        restApi.addRoutes(AddRoutesOptions.builder()
-//                .path("/lambda-test")
-//                .methods(singletonList(HttpMethod.GET))
-//                .integration(httpLambdaIntegration)
-//                .build()
-//        );
-//
-//        new CfnOutput(this, "HttApi", CfnOutputProps.builder()
-//                .description("HTTP API URL")
-//                .value(httpApi.getApiEndpoint())
-//                .build());
+    private Function buildApproveDeclineLambda() {
+        Function lambda = Function.Builder.create(this, "ApproveDeclineInnovationLambda")
+                .handler("org.example.ApproveDeclineLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(1024)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/ApproveDeclineInnovationLambda.jar"))
+                .build();
 
+        // Enable Snapstart
+        CfnFunction cfnFunction = (CfnFunction) lambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
-//        LambdaRestApi api = LambdaRestApi.Builder.create(this, "myapi")
-//                .handler(springBootFunction)
-//                .proxy(false)
-//                .build();
-//
-//        Resource items = api.root.addResource("items");
-//        items.addMethod("GET"); // GET /items
-//        items.addMethod("POST"); // POST /items
+        return lambda;
+    }
 
+    private Function buildSubmitInnovationLambda() {
+        Function submitInnovationLambda = Function.Builder.create(this, "SubmitInnovationLambda")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(1024)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnFunction = (CfnFunction) submitInnovationLambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return submitInnovationLambda;
+    }
+
+    private Table buildInnovationTable() {
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("innovationId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("innovation")
+                .build();
+        return new Table(this, "innovation", tableProps);
     }
 }

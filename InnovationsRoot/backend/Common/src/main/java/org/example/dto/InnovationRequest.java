@@ -11,5 +11,6 @@ public class InnovationRequest {
 
     private String title;
     private String description;
+    private String userId;
 
 }
