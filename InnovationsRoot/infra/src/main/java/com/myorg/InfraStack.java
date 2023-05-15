@@ -43,10 +43,6 @@ public class InfraStack extends Stack {
     public InfraStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        //tabela za inovaciju
-        //builder i stack su povezani dynamob tabelom i mapperom znaci mapper se koristi i ovde kasa koristimmo grantRead....
-        //koristimo upis citanje... sve crud operacije koje su inicijalizovane u mepperu
-
         TableProps tableProps = TableProps.builder()
                 .partitionKey(Attribute.builder()
                         .name("innovationId")
@@ -58,8 +54,6 @@ public class InfraStack extends Stack {
                 .tableName("innovation")
                 .build();
         Table primerDynamoDbTable = new Table(this, "innovation", tableProps);
-
-
 
         Function springBootFunction = Function.Builder.create(this, "SubmitInnovationLambda")
                 .handler("org.example.StreamLambdaHandler")
