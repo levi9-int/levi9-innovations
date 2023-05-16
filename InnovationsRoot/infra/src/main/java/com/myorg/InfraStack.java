@@ -53,6 +53,9 @@ public class InfraStack extends Stack {
         innovationTable.grantReadWriteData(approveDeclineInnovationLambda);
         employeesTable.grantReadWriteData(approveDeclineInnovationLambda);
 
+        Function getInnovationsLambda = buildGetInnovationsLambda();
+        innovationTable.grantReadWriteData(getInnovationsLambda);
+
 
         RestApi api = buildApiGateway();
         api.getRoot()
@@ -61,11 +64,27 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(submitInnovationLambda));
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda));
 
         api.getRoot()
                 .addResource("review-innovation")
                 .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda));
+    }
+
+    private Function buildGetInnovationsLambda() {
+        Function springBootGetFunction = Function.Builder.create(this, "GetInnovationLambda")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/GetInnovationLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return springBootGetFunction;
     }
 
     private Bucket buildS3Bucket() {

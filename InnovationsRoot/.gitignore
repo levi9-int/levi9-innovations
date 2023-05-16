@@ -13,7 +13,7 @@ target/
 *.ipr
 
 ./assets/
-*.jar
+assets/*
 
 ### Eclipse ###
 .apt_generated

@@ -8,22 +8,16 @@ import software.amazon.awscdk.services.apigateway.CorsOptions;
 import software.amazon.awscdk.services.apigateway.LambdaIntegration;
 import software.amazon.awscdk.services.apigateway.Resource;
 import software.amazon.awscdk.services.apigateway.RestApi;
+import software.amazon.awscdk.services.dynamodb.Attribute;
+import software.amazon.awscdk.services.dynamodb.AttributeType;
+import software.amazon.awscdk.services.dynamodb.Table;
+import software.amazon.awscdk.services.dynamodb.TableProps;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
-import software.amazon.awscdk.services.s3.BlockPublicAccess;
-import software.amazon.awscdk.services.s3.Bucket;
-import software.amazon.awscdk.services.s3.BucketAccessControl;
-import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
-import software.amazon.awscdk.services.s3.deployment.ISource;
-import software.amazon.awscdk.services.s3.deployment.Source;
 import software.constructs.Construct;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
 import static java.util.Collections.singletonList;
 
 public class UrosStack extends Stack {
@@ -34,7 +28,20 @@ public class UrosStack extends Stack {
     public UrosStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        Function springBootFunction = Function.Builder.create(this, "SubmitInnovationLambda")
+        TableProps innovationTableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("innovationId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("innovation-uros")
+                .build();
+        Table innovationDynamoDbTable = new Table(this, "innovation-uros", innovationTableProps);
+
+        Function springBootSubmitFunction = Function.Builder.create(this, "SubmitInnovationLambda")
+                .functionName("SubmitInnovationLambda-Uros")
                 .handler("org.example.StreamLambdaHandler")
                 .runtime(Runtime.JAVA_11)
                 .memorySize(1024)
@@ -43,18 +50,39 @@ public class UrosStack extends Stack {
                 .build();
 
         // Enable Snapstart
-        CfnFunction cfnFunction = (CfnFunction) springBootFunction.getNode().getDefaultChild();
-        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+        CfnFunction cfnSubmitFunction = (CfnFunction) springBootSubmitFunction.getNode().getDefaultChild();
+        cfnSubmitFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
-        RestApi api = RestApi.Builder.create(this, "MyRestApi")
-                .description("This is my REST API")
+        Function springBootGetFunction = Function.Builder.create(this, "GetInnovationLambda")
+                .functionName("GetInnovationLambda-Uros")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(1024)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/GetInnovationLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        innovationDynamoDbTable.grantReadWriteData(springBootSubmitFunction);
+        innovationDynamoDbTable.grantReadWriteData(springBootGetFunction);
+
+        RestApi api = RestApi.Builder.create(this, "RestApi-Uros")
+                .restApiName("RestApi-Uros")
+                .description("This is REST API")
                 .defaultCorsPreflightOptions(CorsOptions.builder()
                         .allowCredentials(true)
                         .allowOrigins(singletonList("*")).build())
                 .build();
 
-        Resource resource = api.getRoot().addResource("add-innovation");
-        resource.addMethod("POST", new LambdaIntegration(springBootFunction));
+        Resource resourceSubmit = api.getRoot().addResource("add-innovation");
+        resourceSubmit.addMethod("POST", new LambdaIntegration(springBootSubmitFunction));
+//        Resource resourceGet = api.getRoot().addResource("get-all");
+//        resourceGet.addMethod("POST", new LambdaIntegration(springBootGetFunction));
+        Resource resourceGetByUserId = api.getRoot().addResource("get-innovation");
+        resourceGetByUserId.addMethod("GET", new LambdaIntegration(springBootGetFunction));
 
         /*Bucket siteBucket = Bucket.Builder.create(this, "AngularBacket")
                 .websiteIndexDocument("index.html")
