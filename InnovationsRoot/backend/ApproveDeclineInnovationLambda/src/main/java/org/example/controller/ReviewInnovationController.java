@@ -24,14 +24,17 @@ public class ReviewInnovationController {
     )
     public ResponseEntity<?> reviewInnovation(@RequestBody ReviewInnovationRequest reviewInnovationRequest) {
 
-        Innovation innovation = innovationRepo.findById(reviewInnovationRequest.getInnovationId());
+        Innovation innovation = innovationRepo.findByUserIdAndInnovationId(
+                reviewInnovationRequest.getInnovationId(),
+                reviewInnovationRequest.getUserId());
+
         if (innovation == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         if (reviewInnovationRequest.isApproved()) {
-            innovation.setStatus(InnovationStatus.APPROVED);
+            innovation.setInnovationStatus(InnovationStatus.APPROVED);
             addTokensForUser(innovation);
         } else {
-            innovation.setStatus(InnovationStatus.REJECTED);
+            innovation.setInnovationStatus(InnovationStatus.REJECTED);
         }
 
         if (reviewInnovationRequest.getComment() != null && !reviewInnovationRequest.getComment().isBlank())

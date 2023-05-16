@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class ReviewInnovationRequest {
 
     private String innovationId;
+    private String userId;
     private boolean approved;
     private String comment;
 

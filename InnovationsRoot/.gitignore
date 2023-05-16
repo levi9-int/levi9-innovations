@@ -12,8 +12,7 @@ target/
 *.iml
 *.ipr
 
-./assets/
-assets/*
+./assets/**
 
 ### Eclipse ###
 .apt_generated

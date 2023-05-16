@@ -11,6 +11,7 @@ import software.amazon.awscdk.services.apigatewayv2.alpha.HttpMethod;
 import software.amazon.awscdk.services.apigatewayv2.alpha.PayloadFormatVersion;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegration;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegrationProps;
+import software.amazon.awscdk.services.codedeploy.AllAtOnceTrafficRouting;
 import software.amazon.awscdk.services.dynamodb.*;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
@@ -164,6 +165,10 @@ public class InfraStack extends Stack {
     private Table buildInnovationTable() {
         TableProps tableProps = TableProps.builder()
                 .partitionKey(Attribute.builder()
+                        .name("userId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .sortKey(Attribute.builder()
                         .name("innovationId")
                         .type(AttributeType.STRING)
                         .build())
@@ -173,7 +178,22 @@ public class InfraStack extends Stack {
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .tableName("innovation")
                 .build();
-        return new Table(this, "innovation", tableProps);
+
+        GlobalSecondaryIndexProps gsi = GlobalSecondaryIndexProps.builder()
+                .indexName("innovationStatus-index")
+                .partitionKey(Attribute.builder()
+                    .name("innovationStatus")
+                    .type(AttributeType.STRING)
+                    .build())
+                .projectionType(ProjectionType.ALL)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .build();
+
+        Table table = new Table(this, "innovation", tableProps);
+        table.addGlobalSecondaryIndex(gsi);
+
+        return table;
     }
 
     private Table buildEmployeeTable() {

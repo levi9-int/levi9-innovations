@@ -4,10 +4,15 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import org.example.enums.InnovationStatus;
 import org.example.model.Innovation;
 import com.amazonaws.services.dynamodbv2.model.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,38 +54,80 @@ public class InnovationBuilder {
 
     public List<Innovation> getByUserId(String userId) {
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        // Prepare the query request
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":u", new AttributeValue().withS(userId));
 
-        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
-        Condition scanCondition = new Condition()
-                .withComparisonOperator(ComparisonOperator.EQ)
-                .withAttributeValueList(new AttributeValue().withS(userId));
-        scanFilter.put("userId", scanCondition);
-        scanExpression.setScanFilter(scanFilter);
+        DynamoDBQueryExpression<Innovation> queryExpression = new DynamoDBQueryExpression<Innovation>()
+                .withKeyConditionExpression("userId = :u")
+                .withExpressionAttributeValues(expressionAttributeValues);
 
-        List result = mapper.scan(Innovation.class, scanExpression);
+        List<Innovation> innovations = mapper.query(Innovation.class, queryExpression);
 
-        return result;
+        return (!innovations.isEmpty()) ? innovations : null;
     }
+
+//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+//
+//        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+//        Condition scanCondition = new Condition()
+//                .withComparisonOperator(ComparisonOperator.EQ)
+//                .withAttributeValueList(new AttributeValue().withS(userId));
+//        scanFilter.put("userId", scanCondition);
+//        scanExpression.setScanFilter(scanFilter);
+//
+//        return mapper.scan(Innovation.class, scanExpression);
+//    }
 
     public List<Innovation> getByStatus(String status) {
 
-        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":s", new AttributeValue().withS(status));
 
-        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
-        Condition scanCondition = new Condition()
-                .withComparisonOperator(ComparisonOperator.EQ)
-                .withAttributeValueList(new AttributeValue().withS(status));
-        scanFilter.put("status", scanCondition);
-        scanExpression.setScanFilter(scanFilter);
+        DynamoDBQueryExpression<Innovation> queryExpression = new DynamoDBQueryExpression<Innovation>()
+                .withIndexName("innovationStatus-index")
+                .withKeyConditionExpression("innovationStatus = :s")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withConsistentRead(false);
 
-        List result = mapper.scan(Innovation.class, scanExpression);
+        List<Innovation> innovations = mapper.query(Innovation.class, queryExpression);
+        return (!innovations.isEmpty()) ? innovations : null;
 
-        return result;
+//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+//
+//        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+//        Condition scanCondition = new Condition()
+//                .withComparisonOperator(ComparisonOperator.EQ)
+//                .withAttributeValueList(new AttributeValue().withS(status));
+//        scanFilter.put("status", scanCondition);
+//        scanExpression.setScanFilter(scanFilter);
+//
+//        return mapper.scan(Innovation.class, scanExpression);
     }
 
     public Innovation findById(String id) {
         return mapper.load(Innovation.class, id, mapperConfig);
     }
 
+    public Innovation findByUserIdAndInnovationId(String innovationId, String userId) {
+
+        // Prepare the query request
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":u", new AttributeValue().withS(userId));
+        expressionAttributeValues.put(":i", new AttributeValue().withS(innovationId));
+
+        DynamoDBQueryExpression<Innovation> queryExpression = new DynamoDBQueryExpression<Innovation>()
+                .withKeyConditionExpression("userId = :u AND innovationId = :i")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withLimit(1);
+
+        List<Innovation> innovations = mapper.query(Innovation.class, queryExpression);
+
+        if (!innovations.isEmpty()) {
+            return innovations.get(0);
+        } else {
+            System.out.println("No matching innovation found.");
+            return null;
+        }
+    }
 }
