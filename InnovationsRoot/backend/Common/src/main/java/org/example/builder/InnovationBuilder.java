@@ -1,12 +1,14 @@
 package org.example.builder;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import org.example.model.Innovation;
 
+
 public class InnovationBuilder {
 
-    private int inserted;
     private final DynamoDBMapper mapper;
     private final DynamoDBMapperConfig mapperConfig;
 
@@ -15,17 +17,21 @@ public class InnovationBuilder {
         this.mapperConfig = config;
     }
 
+    public static InnovationBuilder createBuilder() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+                .withRegion("eu-north-1")
+                .build();
+
+        DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig.builder().build();
+        return new InnovationBuilder(new DynamoDBMapper(client, mapperConfig), mapperConfig);
+    }
+
     public DynamoDBMapper getMapper() {
         return this.mapper;
     }
 
-    public int count() {
-        return inserted;
-    }
-
     public void save(Innovation innovation) {
         mapper.save(innovation);
-        inserted+=1;
     }
 
 //    public InnovationBuilder update() {
