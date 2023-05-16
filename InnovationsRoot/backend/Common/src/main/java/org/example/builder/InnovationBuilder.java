@@ -4,8 +4,13 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import org.example.model.Innovation;
+import com.amazonaws.services.dynamodbv2.model.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InnovationBuilder {
 
@@ -34,15 +39,45 @@ public class InnovationBuilder {
         mapper.save(innovation);
     }
 
-//    public InnovationBuilder update() {
-//        mapper.save(innovation, mapperConfig);
-//        return this;
-//    }
-//
-//    public InnovationBuilder delete() {
-//        mapper.delete(innovation, mapperConfig);
-//        return this;
-//    }
+    public List<Innovation> getAll() {
+        return mapper.scan(Innovation.class, new DynamoDBScanExpression());
+    }
+
+    public Innovation getById(String id) {
+        return mapper.load(Innovation.class, id);
+    }
+
+    public List<Innovation> getByUserId(String userId) {
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+
+        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+        Condition scanCondition = new Condition()
+                .withComparisonOperator(ComparisonOperator.EQ)
+                .withAttributeValueList(new AttributeValue().withS(userId));
+        scanFilter.put("userId", scanCondition);
+        scanExpression.setScanFilter(scanFilter);
+
+        List result = mapper.scan(Innovation.class, scanExpression);
+
+        return result;
+    }
+
+    public List<Innovation> getByStatus(String status) {
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+
+        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+        Condition scanCondition = new Condition()
+                .withComparisonOperator(ComparisonOperator.EQ)
+                .withAttributeValueList(new AttributeValue().withS(status));
+        scanFilter.put("status", scanCondition);
+        scanExpression.setScanFilter(scanFilter);
+
+        List result = mapper.scan(Innovation.class, scanExpression);
+
+        return result;
+    }
 
     public Innovation findById(String id) {
         return mapper.load(Innovation.class, id, mapperConfig);
