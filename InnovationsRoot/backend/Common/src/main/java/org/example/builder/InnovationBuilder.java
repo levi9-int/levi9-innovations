@@ -22,11 +22,7 @@ public class InnovationBuilder {
                 .withRegion("eu-north-1")
                 .build();
 
-        String tableName = "innovation";
-        DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig.builder()
-                .withTableNameOverride(DynamoDBMapperConfig.TableNameOverride.withTableNameReplacement(tableName))
-                .build();
-
+        DynamoDBMapperConfig mapperConfig = DynamoDBMapperConfig.builder().build();
         return new InnovationBuilder(new DynamoDBMapper(client, mapperConfig), mapperConfig);
     }
 

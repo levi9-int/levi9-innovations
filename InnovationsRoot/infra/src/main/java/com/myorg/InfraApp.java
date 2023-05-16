@@ -12,13 +12,13 @@ public class InfraApp {
 
 
         // MAIN STACK
-//        new InfraStack(app, "InfraStack", StackProps.builder()
-//                // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-//                .build());
+        new InfraStack(app, "InfraStack", StackProps.builder()
+                // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
+                .build());
 
         // MARKO DEVELOP STACK
-        new MarkoStack(app, "MarkoStack", StackProps.builder()
-                .build());
+//        new MarkoStack(app, "MarkoStack", StackProps.builder()
+//                .build());
 
 //        new UrosStack(app, "UrosStack", StackProps.builder()
 //               .build());

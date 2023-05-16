@@ -11,10 +11,7 @@ import software.amazon.awscdk.services.apigatewayv2.alpha.HttpMethod;
 import software.amazon.awscdk.services.apigatewayv2.alpha.PayloadFormatVersion;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegration;
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegrationProps;
-import software.amazon.awscdk.services.dynamodb.Attribute;
-import software.amazon.awscdk.services.dynamodb.AttributeType;
-import software.amazon.awscdk.services.dynamodb.Table;
-import software.amazon.awscdk.services.dynamodb.TableProps;
+import software.amazon.awscdk.services.dynamodb.*;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
@@ -46,17 +43,25 @@ public class InfraStack extends Stack {
         Bucket siteBucket = buildS3Bucket();
 
         Table innovationTable = buildInnovationTable();
+        Table employeesTable = buildEmployeeTable();
 
         Function submitInnovationLambda = buildSubmitInnovationLambda();
         innovationTable.grantReadWriteData(submitInnovationLambda);
+        employeesTable.grantReadWriteData(submitInnovationLambda);
 
         Function approveDeclineInnovationLambda = buildApproveDeclineLambda();
-        innovationTable.grantReadWriteData(submitInnovationLambda);
+        innovationTable.grantReadWriteData(approveDeclineInnovationLambda);
+        employeesTable.grantReadWriteData(approveDeclineInnovationLambda);
+
 
         RestApi api = buildApiGateway();
         api.getRoot()
                 .addResource("add-innovation")
                 .addMethod("POST", new LambdaIntegration(submitInnovationLambda));
+
+        api.getRoot()
+                .addResource("get-innovation")
+                .addMethod("GET", new LambdaIntegration(submitInnovationLambda));
 
         api.getRoot()
                 .addResource("review-innovation")
@@ -109,7 +114,7 @@ public class InfraStack extends Stack {
         Function lambda = Function.Builder.create(this, "ApproveDeclineInnovationLambda")
                 .handler("org.example.ApproveDeclineLambdaHandler")
                 .runtime(Runtime.JAVA_11)
-                .memorySize(1024)
+                .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/ApproveDeclineInnovationLambda.jar"))
                 .build();
@@ -125,7 +130,7 @@ public class InfraStack extends Stack {
         Function submitInnovationLambda = Function.Builder.create(this, "SubmitInnovationLambda")
                 .handler("org.example.StreamLambdaHandler")
                 .runtime(Runtime.JAVA_11)
-                .memorySize(1024)
+                .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
                 .build();
@@ -143,11 +148,27 @@ public class InfraStack extends Stack {
                         .name("innovationId")
                         .type(AttributeType.STRING)
                         .build())
+                .billingMode(BillingMode.PROVISIONED)
                 .readCapacity(1)
                 .writeCapacity(1)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .tableName("innovation")
                 .build();
         return new Table(this, "innovation", tableProps);
+    }
+
+    private Table buildEmployeeTable() {
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("employeeId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .billingMode(BillingMode.PROVISIONED)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("employees")
+                .build();
+        return new Table(this, "employees", tableProps);
     }
 }

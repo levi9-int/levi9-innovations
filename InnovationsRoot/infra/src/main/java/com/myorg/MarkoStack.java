@@ -38,15 +38,15 @@ public class MarkoStack extends Stack {
         Bucket siteBucket = buildS3Bucket();
 
         Table innovationTable = buildInnovationTable();
-        Table employeesTable = buildEmployeeTable();
+//        Table employeesTable = buildEmployeeTable();
 
         Function submitInnovationLambda = buildSubmitInnovationLambda();
         innovationTable.grantReadWriteData(submitInnovationLambda);
-        employeesTable.grantReadWriteData(submitInnovationLambda);
+//        employeesTable.grantReadWriteData(submitInnovationLambda);
 
         Function approveDeclineInnovationLambda = buildApproveDeclineLambda();
         innovationTable.grantReadWriteData(approveDeclineInnovationLambda);
-        employeesTable.grantReadWriteData(approveDeclineInnovationLambda);
+//        employeesTable.grantReadWriteData(approveDeclineInnovationLambda);
 
 
         RestApi api = buildApiGateway();
@@ -143,27 +143,27 @@ public class MarkoStack extends Stack {
                         .name("innovationId")
                         .type(AttributeType.STRING)
                         .build())
-                .billingMode(BillingMode.PAY_PER_REQUEST)
-//                .readCapacity(1)
-//                .writeCapacity(1)
+                .billingMode(BillingMode.PROVISIONED)
+                .readCapacity(1)
+                .writeCapacity(1)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .tableName("innovation")
                 .build();
         return new Table(this, "innovation", tableProps);
     }
 
-    private Table buildEmployeeTable() {
-        TableProps tableProps = TableProps.builder()
-                .partitionKey(Attribute.builder()
-                        .name("employeeId")
-                        .type(AttributeType.STRING)
-                        .build())
-                .billingMode(BillingMode.PAY_PER_REQUEST)
-//                .readCapacity(1)
-//                .writeCapacity(1)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .tableName("employees")
-                .build();
-        return new Table(this, "employees", tableProps);
-    }
+//    private Table buildEmployeeTable() {
+//        TableProps tableProps = TableProps.builder()
+//                .partitionKey(Attribute.builder()
+//                        .name("employeeId")
+//                        .type(AttributeType.STRING)
+//                        .build())
+//                .billingMode(BillingMode.PAY_PER_REQUEST)
+////                .readCapacity(1)
+////                .writeCapacity(1)
+//                .removalPolicy(RemovalPolicy.DESTROY)
+//                .tableName("employees")
+//                .build();
+//        return new Table(this, "employees", tableProps);
+//    }
 }

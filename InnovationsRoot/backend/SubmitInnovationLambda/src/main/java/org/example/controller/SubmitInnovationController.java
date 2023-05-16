@@ -1,14 +1,9 @@
 package org.example.controller;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import org.example.builder.InnovationBuilder;
 import org.example.dto.InnovationRequest;
 import org.example.enums.InnovationStatus;
 import org.example.model.Innovation;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +23,8 @@ public class SubmitInnovationController {
 
         Innovation i = new Innovation(innovationRequest.getTitle(), innovationRequest.getDescription(),
                 InnovationStatus.PENDING, innovationRequest.getUserId());
+
+        // send mail to lead
 
         builder.save(i);
         return new ResponseEntity<>(HttpStatus.CREATED);
