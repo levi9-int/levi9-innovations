@@ -100,7 +100,7 @@ public class InfraStack extends Stack {
                 .build();
 
         List<ISource> sources = new ArrayList<>(1);
-        sources.add(Source.asset("../frontend/dist/frontend"));
+        sources.add(Source.asset("../cognito-demo/dist/cognito-demo"));
 
         BucketDeployment.Builder.create(this, "DeployAngularApp")
                 .sources(sources)

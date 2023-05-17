@@ -5,6 +5,7 @@ import { EmployeeRegistrationComponent } from '../employee/pages/employee-regist
 import { HomeComponent } from '../employee/pages/home/home.component';
 import { LeadHomeComponent } from '../lead/pages/lead-home/lead-home.component';
 import { NotFoundComponent } from '../shared/components/not-found/not-found.component';
+import { SignUpComponent } from '../shared/components/sign-up/sign-up.component';
 
 const routes: Routes = [
   {
@@ -16,14 +17,14 @@ const routes: Routes = [
     component: LeadHomeComponent,
   },
   {
-    path: 'login',
+    path: 'sign-in',
     component: LoginComponent,
   },
   {
-    path: 'registration',
-    component: EmployeeRegistrationComponent,
+    path: 'sign-up',
+    component: SignUpComponent,
   },
-  { path: '', component: LoginComponent },
+  { path: '', component: HomeComponent },
   { path: '**', component: NotFoundComponent },
 
 ];

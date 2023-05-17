@@ -1,0 +1,103 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    background-color: whitesmoke;
+    font-family: 'Roboto', 'sans-serif';
+}
+
+.container {
+    width: 100%;
+    padding-right: 24px;
+    padding-left: 24px;
+    margin-right: auto;
+    margin-left: auto;
+
+}
+
+@media (min-width:1200px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+    margin-left: -12px;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+.vh-100 {
+    height: 100vh !important;
+}
+
+.justify-content-center {
+    justify-content: center !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+// common css
+
+.header h4 {
+    margin-top: 10px;
+    font-weight: normal;
+    font-size: 14px;
+    color: rgba(0,0,0,.4);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form p {
+    text-align: right;
+}
+
+.form p a {
+    color: #000;
+    font-size: 14px;
+}
+
+.form>input {
+    height: 46px;
+    padding: 0 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    outline: 0;
+    margin-top: 20px;
+}
+
+.form>input:focus {
+    border-color: black;
+}
+
+.form button {
+    padding: 12px 10px;
+    border: 0;
+    background: black;
+    border-radius: 3px;
+    margin-top: 10px;
+    color: #fff;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.auth-box {
+    background-color: white;
+    padding: 48px 56px;
+    border: 2px solid black;
+    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+}
