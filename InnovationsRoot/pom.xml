@@ -21,6 +21,7 @@
     <module>./backend/SubmitInnovationLambda</module>
     <module>./backend/GetInnovationLambda</module>
     <module>./backend/ApproveDeclineInnovationLambda</module>
+    <module>./backend/CognitoPostConfirmationLambda</module>
   </modules>
 
   <properties>

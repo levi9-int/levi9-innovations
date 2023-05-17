@@ -12,9 +12,9 @@ public class InfraApp {
 
 
         // MAIN STACK
-        new InfraStack(app, "InfraStack", StackProps.builder()
+//        new InfraStack(app, "InfraStack", StackProps.builder()
                 // For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-                .build());
+//                .build());
 
         // MARKO DEVELOP STACK
 //        new MarkoStack(app, "MarkoStack", StackProps.builder()
@@ -22,6 +22,8 @@ public class InfraApp {
 
 //        new UrosStack(app, "UrosStack", StackProps.builder()
 //               .build());
+
+        new CognitoStack(app, "CognitoStackJS", StackProps.builder().build());
 
         app.synth();
     }
