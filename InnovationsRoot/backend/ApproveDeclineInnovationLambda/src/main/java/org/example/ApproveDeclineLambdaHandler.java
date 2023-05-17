@@ -30,6 +30,7 @@ public class ApproveDeclineLambdaHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
             throws IOException {
+        inputStream.
         handler.proxyStream(inputStream, outputStream, context);
     }
 }

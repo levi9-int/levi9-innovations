@@ -7,6 +7,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LeadModule } from '../lead/lead.module';
 import { EmployeeModule } from '../employee/employee.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { EmployeeModule } from '../employee/employee.module';
     EmployeeModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    FormsModule
   ],
   providers: [
     // { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
