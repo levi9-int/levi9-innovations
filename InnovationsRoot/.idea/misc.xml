@@ -6,6 +6,8 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/infra/pom.xml" />
+        <option value="$PROJECT_DIR$/Cognito/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/CognitoPostConfirmationLambda/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

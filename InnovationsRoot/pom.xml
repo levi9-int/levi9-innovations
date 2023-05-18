@@ -21,6 +21,7 @@
     <module>./backend/SubmitInnovationLambda</module>
     <module>./backend/GetInnovationLambda</module>
     <module>./backend/ApproveDeclineInnovationLambda</module>
+    <module>./backend/CognitoPostConfirmationLambda</module>
   </modules>
 
   <properties>
@@ -28,5 +29,20 @@
   </properties>
 
   <dependencies>
+      <dependency>
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+          <version>2.10.1</version>
+      </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
   </dependencies>
 </project>
