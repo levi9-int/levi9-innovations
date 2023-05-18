@@ -14,7 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@DynamoDBTable(tableName="employees-uros")
+@DynamoDBTable(tableName="employees")
 public class Employee {
 
     @DynamoDBHashKey(attributeName = "employeeId")

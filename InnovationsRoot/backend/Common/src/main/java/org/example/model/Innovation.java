@@ -9,7 +9,7 @@ import org.example.enums.InnovationStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@DynamoDBTable(tableName = "innovation-uros")
+@DynamoDBTable(tableName = "innovation")
 public class Innovation {
 
     @DynamoDBRangeKey(attributeName = "innovationId")
