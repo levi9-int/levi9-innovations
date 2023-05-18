@@ -8,19 +8,35 @@ import software.amazon.awscdk.services.apigateway.CorsOptions;
 import software.amazon.awscdk.services.apigateway.LambdaIntegration;
 import software.amazon.awscdk.services.apigateway.Resource;
 import software.amazon.awscdk.services.apigateway.RestApi;
-import software.amazon.awscdk.services.dynamodb.Attribute;
-import software.amazon.awscdk.services.dynamodb.AttributeType;
-import software.amazon.awscdk.services.dynamodb.Table;
-import software.amazon.awscdk.services.dynamodb.TableProps;
+import software.amazon.awscdk.services.dynamodb.*;
+import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.s3.BlockPublicAccess;
+import software.amazon.awscdk.services.s3.Bucket;
+import software.amazon.awscdk.services.s3.BucketAccessControl;
+import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
+import software.amazon.awscdk.services.s3.deployment.ISource;
+import software.amazon.awscdk.services.s3.deployment.Source;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.GetIdentityVerificationAttributesRequest;
+import software.amazon.awssdk.services.ses.model.GetIdentityVerificationAttributesResponse;
+import software.amazon.awssdk.services.ses.model.IdentityVerificationAttributes;
+import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 import software.constructs.Construct;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import static java.util.Collections.singletonList;
 
 public class UrosStack extends Stack {
+    private static final String AWS_SES_IDENTITY = "zaricu22@gmail.com";
+
     public UrosStack(final Construct scope, final String id) {
         this(scope, id, null);
     }
@@ -28,36 +44,65 @@ public class UrosStack extends Stack {
     public UrosStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        TableProps innovationTableProps = TableProps.builder()
-                .partitionKey(Attribute.builder()
-                        .name("innovationId")
-                        .type(AttributeType.STRING)
-                        .build())
-                .readCapacity(1)
-                .writeCapacity(1)
-                .removalPolicy(RemovalPolicy.DESTROY)
-                .tableName("innovation-uros")
+        // Bucket siteBucket = buildS3Bucket();
+
+        Table innovationTable = buildInnovationTable();
+        Table employeesTable = buildEmployeeTable();
+
+        Function submitInnovationLambda = buildSubmitInnovationLambda();
+        innovationTable.grantReadWriteData(submitInnovationLambda);
+        employeesTable.grantReadWriteData(submitInnovationLambda);
+
+        Function approveDeclineInnovationLambda = buildApproveDeclineLambda();
+        innovationTable.grantReadWriteData(approveDeclineInnovationLambda);
+        employeesTable.grantReadWriteData(approveDeclineInnovationLambda);
+
+        Function getInnovationsLambda = buildGetInnovationsLambda();
+        innovationTable.grantReadWriteData(getInnovationsLambda);
+
+        verifyMailBySES(AWS_SES_IDENTITY);
+
+        RestApi api = buildApiGateway();
+        api.getRoot()
+                .addResource("add-innovation")
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda));
+
+        api.getRoot()
+                .addResource("get-innovation")
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda));
+
+        api.getRoot()
+                .addResource("review-innovation")
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda));
+    }
+
+    private void verifyMailBySES(String mail) {
+        Region region = Region.EU_NORTH_1;
+        SesClient sesClient = SesClient.builder()
+                .region(region)
                 .build();
-        Table innovationDynamoDbTable = new Table(this, "innovation-uros", innovationTableProps);
 
-        Function springBootSubmitFunction = Function.Builder.create(this, "SubmitInnovationLambda")
-                .functionName("SubmitInnovationLambda-Uros")
-                .handler("org.example.StreamLambdaHandler")
-                .runtime(Runtime.JAVA_11)
-                .memorySize(1024)
-                .timeout(Duration.seconds(20))
-                .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
-                .build();
+        // if verification process hasn't been initiated for the identity
+        GetIdentityVerificationAttributesResponse verificationResponse = sesClient.getIdentityVerificationAttributes(
+                GetIdentityVerificationAttributesRequest.builder()
+                    .identities(mail)
+                    .build());
+        boolean verificationAttributesAreEmpty = verificationResponse.verificationAttributes().entrySet().isEmpty();
+        boolean verificationStatusIsPending = false;
+        if(!verificationAttributesAreEmpty)
+            verificationStatusIsPending = verificationResponse.verificationAttributes().entrySet().iterator()
+                    .next().getValue().verificationStatusAsString().equals("Pending");
+        if(verificationAttributesAreEmpty || verificationStatusIsPending)
+            sesClient.verifyEmailIdentity(VerifyEmailIdentityRequest.builder()
+                    .emailAddress(mail)
+                    .build());
+    }
 
-        // Enable Snapstart
-        CfnFunction cfnSubmitFunction = (CfnFunction) springBootSubmitFunction.getNode().getDefaultChild();
-        cfnSubmitFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
-
+    private Function buildGetInnovationsLambda() {
         Function springBootGetFunction = Function.Builder.create(this, "GetInnovationLambda")
-                .functionName("GetInnovationLambda-Uros")
                 .handler("org.example.StreamLambdaHandler")
                 .runtime(Runtime.JAVA_11)
-                .memorySize(1024)
+                .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/GetInnovationLambda.jar"))
                 .build();
@@ -66,26 +111,13 @@ public class UrosStack extends Stack {
         CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
         cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
-        innovationDynamoDbTable.grantReadWriteData(springBootSubmitFunction);
-        innovationDynamoDbTable.grantReadWriteData(springBootGetFunction);
+        return springBootGetFunction;
+    }
 
-        RestApi api = RestApi.Builder.create(this, "RestApi-Uros")
-                .restApiName("RestApi-Uros")
-                .description("This is REST API")
-                .defaultCorsPreflightOptions(CorsOptions.builder()
-                        .allowCredentials(true)
-                        .allowOrigins(singletonList("*")).build())
-                .build();
-
-        Resource resourceSubmit = api.getRoot().addResource("add-innovation");
-        resourceSubmit.addMethod("POST", new LambdaIntegration(springBootSubmitFunction));
-//        Resource resourceGet = api.getRoot().addResource("get-all");
-//        resourceGet.addMethod("POST", new LambdaIntegration(springBootGetFunction));
-        Resource resourceGetByUserId = api.getRoot().addResource("get-innovation");
-        resourceGetByUserId.addMethod("GET", new LambdaIntegration(springBootGetFunction));
-
-        /*Bucket siteBucket = Bucket.Builder.create(this, "AngularBacket")
+    private Bucket buildS3Bucket() {
+        Bucket siteBucket = Bucket.Builder.create(this, "AngularBucket")
                 .websiteIndexDocument("index.html")
+                .websiteErrorDocument("index.html")
                 .publicReadAccess(true)
                 .blockPublicAccess(BlockPublicAccess.BLOCK_ACLS)
                 .accessControl(BucketAccessControl.BUCKET_OWNER_FULL_CONTROL)
@@ -94,10 +126,122 @@ public class UrosStack extends Stack {
                 .build();
 
         List<ISource> sources = new ArrayList<>(1);
-        sources.add(Source.asset("../frontend/dist/frontend"));
+        sources.add(Source.asset("../cognito-demo/dist/cognito-demo"));
 
         BucketDeployment.Builder.create(this, "DeployAngularApp")
                 .sources(sources)
-                .destinationBucket(siteBucket).build();*/
+                .destinationBucket(siteBucket).build();
+
+        return siteBucket;
+    }
+
+    private RestApi buildApiGateway() {
+
+        return RestApi.Builder.create(this, "MyRestApi")
+                .description("This is REST API")
+                .defaultCorsPreflightOptions(CorsOptions.builder()
+                        .allowCredentials(true)
+                        .allowOrigins(singletonList("*")).build())
+                .build();
+
+        // Deploy the REST API to a stage
+//        Deployment deployment = Deployment.Builder.create(this, "MyDeployment")
+//                .api(api)
+//                .description("Initial deployment")
+//                .build();
+//
+//        Stage stage = Stage.Builder.create(this, "MyStage")
+//                .deployment(deployment)
+//                .stageName("testStage")
+//                .build();
+    }
+
+    private Function buildApproveDeclineLambda() {
+        Function lambda = Function.Builder.create(this, "ApproveDeclineInnovationLambda")
+                .handler("org.example.ApproveDeclineLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/ApproveDeclineInnovationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("ses:SendEmail"))
+                        .resources(List.of("*"))
+                        .build()))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnFunction = (CfnFunction) lambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return lambda;
+    }
+
+    private Function buildSubmitInnovationLambda() {
+        Function submitInnovationLambda = Function.Builder.create(this, "SubmitInnovationLambda")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("ses:SendEmail"))
+                        .resources(List.of("*"))
+                        .build()))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnFunction = (CfnFunction) submitInnovationLambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return submitInnovationLambda;
+    }
+
+    private Table buildInnovationTable() {
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("userId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .sortKey(Attribute.builder()
+                        .name("innovationId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .billingMode(BillingMode.PROVISIONED)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("innovation-uros")
+                .build();
+
+        GlobalSecondaryIndexProps gsi = GlobalSecondaryIndexProps.builder()
+                .indexName("innovationStatus-index")
+                .partitionKey(Attribute.builder()
+                        .name("innovationStatus")
+                        .type(AttributeType.STRING)
+                        .build())
+                .projectionType(ProjectionType.ALL)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .build();
+
+        Table table = new Table(this, "innovation-uros", tableProps);
+        table.addGlobalSecondaryIndex(gsi);
+
+        return table;
+    }
+
+    private Table buildEmployeeTable() {
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("employeeId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .billingMode(BillingMode.PROVISIONED)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("employees-uros")
+                .build();
+        return new Table(this, "employees-uros", tableProps);
     }
 }
