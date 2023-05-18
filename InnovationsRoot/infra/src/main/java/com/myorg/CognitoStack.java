@@ -30,18 +30,18 @@ public class CognitoStack extends Stack {
         UserPool userPool = UserPool.Builder.create(this, "test-pool")
                 .userPoolName("test-pool")
                 .selfSignUpEnabled(true)
-
+                .signInAliases(SignInAliases.builder().email(true).username(false).build())
+                .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
                 .userVerification(UserVerificationConfig.builder()
-                        .emailSubject("Verify email.")
+                        .emailSubject("Verify your email.")
                         .emailBody("Thanks for signing up to our awesome app! Your verification code is {####}")
                         .emailStyle(VerificationEmailStyle.CODE)
                         .smsMessage("Thanks for signing up to our awesome app! Your verification code is {####}")
                         .build())
-                .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
                 .standardAttributes(StandardAttributes.builder()
-                        .fullname(StandardAttribute.builder().required(true).mutable(true).build())
+                        .givenName(StandardAttribute.builder().required(true).mutable(true).build())
+                        .familyName(StandardAttribute.builder().required(true).mutable(true).build())
                         .email(StandardAttribute.builder().required(true).mutable(true).build())
-                        .phoneNumber(StandardAttribute.builder().required(true).mutable(true).build())
                         .build())
                 .passwordPolicy(PasswordPolicy.builder()
                         .minLength(8)
@@ -51,7 +51,8 @@ public class CognitoStack extends Stack {
                         .requireSymbols(false)
                         .build())
                 .removalPolicy(RemovalPolicy.DESTROY)
-//                .accountRecovery(AccountRecovery.EMAIL_ONLY)
+                .accountRecovery(AccountRecovery.EMAIL_ONLY)
+                .lambdaTriggers(UserPoolTriggers.builder().postConfirmation(buildCognitoPostConfigurationLambda).build())
                 .build();
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "test_pool_client")
@@ -70,13 +71,13 @@ public class CognitoStack extends Stack {
                 .build();
 
         List<CfnUserPoolUser.AttributeTypeProperty> attributesList = new ArrayList<>();
-        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("email").value("innovation.lead@outlook.com").build());
-        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("name").value("Marko Markovic").build());
-        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("phone_number").value("+381612904025").build());
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("email").value("savic.jana15@gmail.com").build());
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("given_name").value("Nenad").build());
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("family_name").value("Miljanov").build());
 
         CfnUserPoolUser leadUser = new CfnUserPoolUser(this, "engineeringLead",
                 CfnUserPoolUserProps.builder().userPoolId(userPool.getUserPoolId())
-                        .username("engineeringLead")
+                        .username("savic.jana15@gmail.com")
                         .desiredDeliveryMediums(List.of("EMAIL"))
                         .userAttributes(attributesList)
                         .build());
@@ -88,6 +89,9 @@ public class CognitoStack extends Stack {
                 .build();
 
         attachLeadToGroup.getNode().addDependency(leadUser);
+
+
+
 
     }
 
