@@ -2,6 +2,7 @@ package com.myorg;
 
 import software.amazon.awscdk.*;
 import software.amazon.awscdk.services.cognito.*;
+import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
@@ -11,6 +12,8 @@ import software.constructs.Construct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 public class CognitoStackMD extends Stack {
     public CognitoStackMD(final Construct scope, final String id) {
@@ -28,6 +31,7 @@ public class CognitoStackMD extends Stack {
                 .selfSignUpEnabled(true)
                 .signInAliases(SignInAliases.builder().email(true).username(false).build())
                 .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
+
                 .userVerification(UserVerificationConfig.builder()
                         .emailSubject("Verify your email.")
                         .emailBody("Thanks for signing up to our awesome app! Your verification code is {####}")
@@ -53,7 +57,7 @@ public class CognitoStackMD extends Stack {
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "test_pool_client")
                 .userPool(userPool)
-                .authFlows(AuthFlow.builder().userPassword(true).adminUserPassword(true).build())
+                .authFlows(AuthFlow.builder().userSrp(true).userPassword(true).adminUserPassword(true).build())
                 .build();
 
         CfnUserPoolGroup employeeGroup = CfnUserPoolGroup.Builder.create(this, "employee_group")
@@ -95,6 +99,10 @@ public class CognitoStackMD extends Stack {
                 .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/CognitoPostConfigurationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("cognito-idp:AdminAddUserToGroup"))
+                        .resources(List.of("*"))
+                        .build()))
                 .build();
 
         // Enable Snapstart

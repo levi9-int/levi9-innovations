@@ -5,7 +5,7 @@ import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.cognito.*;
-import software.amazon.awscdk.services.iam.CfnUser;
+import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.singletonList;
+
 public class CognitoStack extends Stack {
     public CognitoStack(final Construct scope, final String id) {
         this(scope, id, null);
@@ -24,19 +26,17 @@ public class CognitoStack extends Stack {
     public CognitoStack(final Construct scope, final String id, final StackProps props) {
         super(scope, id, props);
 
-        Function buildCognitoPostConfigurationLambda = buildCognitoPostConfigurationLambda();
+        Function cognitoPostConfirmationLambda = buildCognitoPostConfirmationLambda();
 
-
-        UserPool userPool = UserPool.Builder.create(this, "test-pool")
-                .userPoolName("test-pool")
+        UserPool userPool = UserPool.Builder.create(this, "user-pool")
                 .selfSignUpEnabled(true)
                 .signInAliases(SignInAliases.builder().email(true).username(false).build())
                 .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
+
                 .userVerification(UserVerificationConfig.builder()
                         .emailSubject("Verify your email.")
                         .emailBody("Thanks for signing up to our awesome app! Your verification code is {####}")
                         .emailStyle(VerificationEmailStyle.CODE)
-                        .smsMessage("Thanks for signing up to our awesome app! Your verification code is {####}")
                         .build())
                 .standardAttributes(StandardAttributes.builder()
                         .givenName(StandardAttribute.builder().required(true).mutable(true).build())
@@ -52,12 +52,12 @@ public class CognitoStack extends Stack {
                         .build())
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .accountRecovery(AccountRecovery.EMAIL_ONLY)
-                .lambdaTriggers(UserPoolTriggers.builder().postConfirmation(buildCognitoPostConfigurationLambda).build())
+                .lambdaTriggers(UserPoolTriggers.builder().postConfirmation(cognitoPostConfirmationLambda).build())
                 .build();
 
-        UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "test_pool_client")
+        UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "user_pool_client")
                 .userPool(userPool)
-                .authFlows(AuthFlow.builder().userPassword(true).adminUserPassword(true).build())
+                .authFlows(AuthFlow.builder().userSrp(true).userPassword(true).adminUserPassword(true).build())
                 .build();
 
         CfnUserPoolGroup employeeGroup = CfnUserPoolGroup.Builder.create(this, "employee_group")
@@ -65,11 +65,17 @@ public class CognitoStack extends Stack {
                 .groupName("EmployeeGroup")
                 .build();
 
-        CfnUserPoolGroup leadGroup = CfnUserPoolGroup.Builder.create(this, "engeneering_lead_group")
+        CfnUserPoolGroup leadGroup = CfnUserPoolGroup.Builder.create(this, "engineering_lead_group")
                 .userPoolId(userPool.getUserPoolId())
-                .groupName("EngeneeringLeadGroup")
+                .groupName("EngineeringLeadGroup")
                 .build();
 
+        addLeadToGroup(userPool, leadGroup);
+
+
+    }
+
+    private void addLeadToGroup(UserPool userPool, CfnUserPoolGroup leadGroup) {
         List<CfnUserPoolUser.AttributeTypeProperty> attributesList = new ArrayList<>();
         attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("email").value("savic.jana15@gmail.com").build());
         attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("given_name").value("Nenad").build());
@@ -89,25 +95,25 @@ public class CognitoStack extends Stack {
                 .build();
 
         attachLeadToGroup.getNode().addDependency(leadUser);
-
-
-
-
     }
 
-    private Function buildCognitoPostConfigurationLambda() {
-        Function springBootGetFunction = Function.Builder.create(this, "CognitoPostConfigurationLambda")
+    private Function buildCognitoPostConfirmationLambda() {
+        Function lambda = Function.Builder.create(this, "CognitoPostConfigurationLambda")
                 .handler("org.example.PostConfirmationLambdaHandler")
                 .runtime(Runtime.JAVA_11)
                 .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/CognitoPostConfigurationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("cognito-idp:AdminAddUserToGroup"))
+                        .resources(List.of("*"))
+                        .build()))
                 .build();
 
         // Enable Snapstart
-        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
+        CfnFunction cfnGetFunction = (CfnFunction) lambda.getNode().getDefaultChild();
         cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
-        return springBootGetFunction;
+        return lambda;
     }
 }

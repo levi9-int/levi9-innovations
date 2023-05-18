@@ -12,8 +12,8 @@ public class InfraApp {
 
 
         // MAIN STACK
-//        new InfraStack(app, "InfraStack", StackProps.builder()
-//                .build());
+        new InfraStack(app, "InfraStack", StackProps.builder()
+                .build());
 
         // MARKO DEVELOP STACK
 //        new MarkoStack(app, "MarkoStack", StackProps.builder()
@@ -22,9 +22,9 @@ public class InfraApp {
 //        new UrosStack(app, "UrosStack", StackProps.builder()
 //               .build());
 
-//        new CognitoStack(app, "CognitoStackJS", StackProps.builder().build());
+        new CognitoStack(app, "CognitoStack", StackProps.builder().build());
 
-        new CognitoStackMD(app, "CognitoStackMD", StackProps.builder().build());
+//        new CognitoStackMD(app, "CognitoStackMD", StackProps.builder().build());
         app.synth();
     }
 }
