@@ -97,7 +97,7 @@ public class CognitoStack extends Stack {
 
     private Function buildCognitoPostConfigurationLambda() {
         Function springBootGetFunction = Function.Builder.create(this, "CognitoPostConfigurationLambda")
-                .handler("org.example.StreamLambdaHandler")
+                .handler("org.example.PostConfirmationLambdaHandler")
                 .runtime(Runtime.JAVA_11)
                 .memorySize(512)
                 .timeout(Duration.seconds(20))
