@@ -44,6 +44,11 @@
             <artifactId>aws-cdk-lib</artifactId>
             <version>${cdk.version}</version>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ses</artifactId>
+            <version>2.20.66</version>
+        </dependency>
 
         <dependency>
             <groupId>software.constructs</groupId>
