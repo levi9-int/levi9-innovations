@@ -22,7 +22,7 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        console.log(user);
+        this.fetchUsersInnovations(user.username);
       }
       else {
         this.router.navigate(['/sign-in']);
@@ -30,9 +30,16 @@ export class EmployeeComponent implements OnInit{
     })
   }
 
-  // private fetchUsersInnovations() {
-  //   this.employeeService.fetchUsersInnovations();
-  // }
+  private fetchUsersInnovations(username: string) {
+    this.employeeService.fetchUsersInnovations(username).subscribe({
+      next: (res) => {
+        console.log(res);
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
+  }
 
   signOutWithCognito() {
     this.cognitoService.signOut()
@@ -40,8 +47,6 @@ export class EmployeeComponent implements OnInit{
       this.router.navigate(['/sign-in'])
     })
   }
-
-
 }
 
 
