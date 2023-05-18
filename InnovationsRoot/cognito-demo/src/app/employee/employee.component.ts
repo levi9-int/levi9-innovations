@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
+import { EmployeeService } from '../service/employee.service';
 
 @Component({
   selector: 'app-employee',
@@ -9,7 +10,8 @@ import { CognitoService } from '../service/cognito.service';
 })
 export class EmployeeComponent implements OnInit{
 
-  constructor(private router: Router, private cognitoService: CognitoService) {}
+  constructor(private router: Router, private cognitoService: CognitoService,
+    private employeeService: EmployeeService) {}
 
   ngOnInit(): void {
     this.getUserDetails();
@@ -20,7 +22,6 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        // logged in
         console.log(user);
       }
       else {
@@ -29,10 +30,18 @@ export class EmployeeComponent implements OnInit{
     })
   }
 
+  // private fetchUsersInnovations() {
+  //   this.employeeService.fetchUsersInnovations();
+  // }
+
   signOutWithCognito() {
     this.cognitoService.signOut()
     .then(() => {
       this.router.navigate(['/sign-in'])
     })
   }
+
+
 }
+
+
