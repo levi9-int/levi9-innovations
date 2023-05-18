@@ -10,6 +10,8 @@ import { MessageModalComponent } from './components/message-modal/message-modal.
 import { EmployeeComponent } from './employee/employee.component';
 import { LeadComponent } from './lead/lead.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -25,8 +27,9 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    HttpClientModule,
   ],
-  providers: [],
+  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -8,11 +8,21 @@ import { environment } from '../../environments/environment.development';
 })
 export class CognitoService {
 
+
   constructor() {
     Amplify.configure({
       Auth:environment.cognito
     })
-   }
+  }
+
+   setAccessToken(accessToken: any) {
+    sessionStorage.setItem("jwt", accessToken.jwtToken);
+  }
+
+  getToken() {
+    return sessionStorage.getItem("jwt");
+  }
+
 
   public signUp(user: User): Promise<any> {
     return Auth.signUp({
@@ -30,7 +40,6 @@ export class CognitoService {
     return Auth.confirmSignUp(user.email, user.code);
   }
 
-
   // this method will return user info if any user
   // is logged in with valid email and password
   public getUser(): Promise<any> {
@@ -42,6 +51,7 @@ export class CognitoService {
   }
 
   public signOut() : Promise<any> {
+    sessionStorage.removeItem("jwt");
     return Auth.signOut();
   }
 

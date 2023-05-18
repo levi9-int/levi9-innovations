@@ -17,7 +17,7 @@
                         <input type="checkbox" [checked]="user.showPassword" (change)="user.showPassword = !user.showPassword">
                         Show Password
                     </div>
-                    <p>Already a member? <a href="/sign-in">Sign in</a></p>
+                    <p>Already a member? <a routerLink="/sign-in">Sign in</a></p>
                     <button (click)="signUpWithCognito()">REGISTER</button>
                </div>
            </div>
