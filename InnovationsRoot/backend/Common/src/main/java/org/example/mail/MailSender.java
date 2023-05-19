@@ -8,7 +8,7 @@ public class MailSender {
 
     SesV2Client client;
 
-    public MailSender (SesV2Client client) {
+    public MailSender(SesV2Client client) {
         this.client = client;
     }
 
@@ -24,7 +24,7 @@ public class MailSender {
     public boolean send(String recipient,
                         String subject,
                         String body
-    ){
+    ) {
 
         Destination destination = Destination.builder()
                 .toAddresses(recipient)

@@ -4,6 +4,7 @@ import org.example.builder.EmployeeBuilder;
 import org.example.builder.InnovationBuilder;
 import org.example.dto.InnovationRequest;
 import org.example.enums.InnovationStatus;
+import org.example.mail.MailSender;
 import org.example.model.Employee;
 import org.example.model.Innovation;
 import org.springframework.http.HttpStatus;
@@ -19,17 +20,16 @@ public class SubmitInnovationController {
     private static final String LEAD_MAIL = "sfetel21@outlook.com";
     private final InnovationBuilder builder = InnovationBuilder.createBuilder();
     private final EmployeeBuilder employeeRepo = EmployeeBuilder.createBuilder();
-    private final org.example.mail.MailSender mailSender = org.example.mail.MailSender.createMailSender();
+    private final MailSender mailSender = MailSender.createMailSender();
 
     @PostMapping(
             value = "/add-innovation",
             produces = "application/json",
             consumes = "application/json"
     )
-    public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest, Principal principal) {
+    public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest) {
 
-        System.out.println("PRINCIPAAAAAAAAAAAAAAAAAL");
-        System.out.println(principal.getName());
+//        System.out.println(principal.getName()); try with Principal
 
         Innovation i = new Innovation(innovationRequest.getTitle(), innovationRequest.getDescription(),
                 InnovationStatus.PENDING, innovationRequest.getUserId());
