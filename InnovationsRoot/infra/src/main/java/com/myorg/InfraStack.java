@@ -13,6 +13,7 @@ import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambd
 import software.amazon.awscdk.services.apigatewayv2.integrations.alpha.HttpLambdaIntegrationProps;
 import software.amazon.awscdk.services.codedeploy.AllAtOnceTrafficRouting;
 import software.amazon.awscdk.services.dynamodb.*;
+import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.lambda.CfnFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
@@ -24,6 +25,11 @@ import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
 import software.amazon.awscdk.services.s3.deployment.ISource;
 import software.amazon.awscdk.services.s3.deployment.Source;
 import software.amazon.awscdk.services.stepfunctions.IStateMachine;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.GetIdentityVerificationAttributesRequest;
+import software.amazon.awssdk.services.ses.model.GetIdentityVerificationAttributesResponse;
+import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 import software.constructs.Construct;
 
 import java.util.ArrayList;
@@ -34,6 +40,9 @@ import java.util.Map;
 import static java.util.Collections.singletonList;
 
 public class InfraStack extends Stack {
+
+    private static final String AWS_SES_IDENTITY = "zaricu22@gmail.com";
+
     public InfraStack(final Construct scope, final String id) {
         this(scope, id, null);
     }
@@ -57,6 +66,7 @@ public class InfraStack extends Stack {
         Function getInnovationsLambda = buildGetInnovationsLambda();
         innovationTable.grantReadWriteData(getInnovationsLambda);
 
+        verifyMailBySES(AWS_SES_IDENTITY);
 
         RestApi api = buildApiGateway();
         api.getRoot()
@@ -137,6 +147,10 @@ public class InfraStack extends Stack {
                 .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/ApproveDeclineInnovationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("ses:SendEmail"))
+                        .resources(List.of("*"))
+                        .build()))
                 .build();
 
         // Enable Snapstart
@@ -153,6 +167,10 @@ public class InfraStack extends Stack {
                 .memorySize(512)
                 .timeout(Duration.seconds(20))
                 .code(Code.fromAsset("../assets/SubmitInnovationLambda.jar"))
+                .initialPolicy(singletonList(PolicyStatement.Builder.create()
+                        .actions(List.of("ses:SendEmail"))
+                        .resources(List.of("*"))
+                        .build()))
                 .build();
 
         // Enable Snapstart
@@ -160,6 +178,29 @@ public class InfraStack extends Stack {
         cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
         return submitInnovationLambda;
+    }
+
+    private void verifyMailBySES(String mail) {
+        Region region = Region.EU_NORTH_1;
+        SesClient sesClient = SesClient.builder()
+                .region(region)
+                .build();
+
+        // if verification process hasn't been initiated for the identity
+        GetIdentityVerificationAttributesResponse verificationResponse = sesClient.getIdentityVerificationAttributes(
+                GetIdentityVerificationAttributesRequest.builder()
+                        .identities(mail)
+                        .build());
+
+        boolean verificationAttributesAreEmpty = verificationResponse.verificationAttributes().entrySet().isEmpty();
+        boolean verificationStatusIsPending = false;
+        if(!verificationAttributesAreEmpty)
+            verificationStatusIsPending = verificationResponse.verificationAttributes().entrySet().iterator()
+                    .next().getValue().verificationStatusAsString().equals("Pending");
+        if(verificationAttributesAreEmpty || verificationStatusIsPending)
+            sesClient.verifyEmailIdentity(VerifyEmailIdentityRequest.builder()
+                    .emailAddress(mail)
+                    .build());
     }
 
     private Table buildInnovationTable() {
