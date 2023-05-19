@@ -28,8 +28,8 @@ export class SignInComponent implements OnInit{
     if (this.user && this.user.email && this.user.password) {
       this.cognitoService.signIn(this.user)
       .then((res) => {
-        console.log(res.signInUserSession.accessToken);
-        this.cognitoService.setAccessToken(res.signInUserSession.accessToken);
+        console.log(res.signInUserSession);
+        this.cognitoService.setAccessToken(res.signInUserSession.idToken);
         // todo: check if logged in user is employee or lead
         this.router.navigate(['/employee'])
       })

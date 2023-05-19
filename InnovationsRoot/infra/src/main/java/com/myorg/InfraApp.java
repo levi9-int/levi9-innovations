@@ -22,7 +22,7 @@ public class InfraApp {
 //        new UrosStack(app, "UrosStack", StackProps.builder()
 //               .build());
 
-        new CognitoStack(app, "CognitoStack", StackProps.builder().build());
+//        new CognitoStack(app, "CognitoStack", StackProps.builder().build());
 
 //        new CognitoStackMD(app, "CognitoStackMD", StackProps.builder().build());
         app.synth();

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @CrossOrigin
 public class SubmitInnovationController {
@@ -19,7 +21,10 @@ public class SubmitInnovationController {
             produces = "application/json",
             consumes = "application/json"
     )
-    public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest) {
+    public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest, Principal principal) {
+
+        System.out.println("PRINCIPAAAAAAAAAAAAAAAAAL");
+        System.out.println(principal.getName());
 
         Innovation i = new Innovation(innovationRequest.getTitle(), innovationRequest.getDescription(),
                 InnovationStatus.PENDING, innovationRequest.getUserId());

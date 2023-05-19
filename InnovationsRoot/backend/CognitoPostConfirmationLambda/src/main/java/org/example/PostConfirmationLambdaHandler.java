@@ -4,6 +4,9 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import com.amazonaws.services.lambda.runtime.events.CognitoUserPoolPostConfirmationEvent;
+import org.example.builder.EmployeeBuilder;
+import org.example.builder.InnovationBuilder;
+import org.example.model.Employee;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUserToGroupRequest;
@@ -14,19 +17,21 @@ import java.util.Map;
 public class PostConfirmationLambdaHandler implements RequestHandler<CognitoUserPoolPostConfirmationEvent, CognitoUserPoolPostConfirmationEvent> {
 
     private static final String EMPLOYEE_GROUP_NAME = "EmployeeGroup";
+    private final EmployeeBuilder employeeRepo = EmployeeBuilder.createBuilder();
 
     private final CognitoIdentityProviderClient cognitoIdentityProviderClient = CognitoIdentityProviderClient.builder()
             .region(Region.EU_NORTH_1)
             .build();
-
-    public PostConfirmationLambdaHandler() {
-    }
 
     @Override
     public CognitoUserPoolPostConfirmationEvent handleRequest(CognitoUserPoolPostConfirmationEvent cognitoUserPoolPostConfirmationEvent, Context context) {
 
         Map<String, String> userAttributes = cognitoUserPoolPostConfirmationEvent.getRequest().getUserAttributes();
         addUserToGroup(userAttributes.get("sub"), cognitoUserPoolPostConfirmationEvent.getUserPoolId());
+
+        Employee employee = new Employee(userAttributes);
+        employeeRepo.save(employee);
+
         return cognitoUserPoolPostConfirmationEvent;
     }
 
