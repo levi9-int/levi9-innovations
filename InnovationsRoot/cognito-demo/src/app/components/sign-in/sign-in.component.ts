@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from 'src/app/models/user';
-import { CognitoService } from 'src/app/service/cognito.service';
+import { User } from 'app/models/user';
+import { CognitoService } from 'app/service/cognito.service';
 
 @Component({
   selector: 'app-sign-in',

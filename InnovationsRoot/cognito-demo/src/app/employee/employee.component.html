@@ -1,12 +1,65 @@
 <div class="navigate">
-
+    <button (click)="showRegistrationForm()">Registracija</button>
     <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
         <img src="https://img.icons8.com/?size=512&id=108652&format=png">
         <div class="logout" >LOGOUT</div>
     </a>
+    
 </div>
 
 
 <div class="user-content">
-    <h2>Content that needs authentication goes here</h2>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr >
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Innovation Status</th>
+                <th scope="col">Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of innovations">
+                <td>{{ i.title }}</td>
+                <td>{{ i.description }}</td>
+                <td>{{ i.innovationStatus }}</td>
+                <td>{{ i.comment }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+
+
+<div *ngIf="showRegistrationPopup">
+    <div class="popup-overlay"></div>
+    <div class="popup-container">
+      <form>
+        <!-- <div>
+          <label for="id">ID:</label>
+          <input type="text" id="id" [(ngModel)]="innovation.id" name="id">
+        </div> -->
+        <div>
+          <label for="title">Title:</label>
+          <input type="text" id="title" [(ngModel)]="innovation.title" name="title">
+        </div>
+        <div>
+          <label for="description">Description:</label>
+          <textarea id="description" [(ngModel)]="innovation.description" name="description"></textarea>
+        </div>
+        <!-- <div>
+          <label for="innovationStatus">Innovation Status:</label>
+          <select name="innovationStatus" [(ngModel)]="innovation.innovationStatus">
+            <option *ngFor="let status of innovationStatus" [ngValue]="status">{{ status }}</option>
+          </select>
+        </div> -->
+        <!-- <div>
+          <label for="comment">Comment:</label>
+          <textarea id="comment" [(ngModel)]="innovation.comment" name="comment"></textarea>
+        </div> -->
+        
+        <p *ngIf="sucessfulAdding">Uspesno dodat korisnik</p>
+        <button (click)="closeRegistrationForm()">Zatvori</button>
+        <button (click)="saveInnovation()">Kreiraj</button>
+      </form>
+    </div>
+  </div>
