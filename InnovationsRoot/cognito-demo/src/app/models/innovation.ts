@@ -5,6 +5,6 @@ export interface Innovation {
     userId: string;
     title: string;
     description: string;
-    innovationStatus: InnovationStatus | undefined;
+    innovationStatus: InnovationStatus;
     comment: string;
 }

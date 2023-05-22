@@ -32,9 +32,9 @@
   </div>
   
   <div *ngIf="showRegistrationPopup" class="popup-container">
-      <h2>Forma za registraciju</h2>
-      <label>Komentar:</label><br>
-      <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br>
-      <button (click)="reviewInnovation(true)">Approve</button>
+      <h2>Approve/decline</h2>
+      <label>Comment:</label><br>
+      <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br><br>
+      <button (click)="reviewInnovation(true)">Approve</button><br><br>
       <button (click)="reviewInnovation(false)">Decline</button>
   </div>

@@ -1,5 +1,5 @@
 <div class="navigate">
-    <button (click)="showRegistrationForm()">Registracija</button>
+    <button (click)="showRegistrationForm()">Create innovation</button>
     <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
         <img src="https://img.icons8.com/?size=512&id=108652&format=png">
         <div class="logout" >LOGOUT</div>
@@ -19,7 +19,11 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let i of innovations">
+            <tr *ngFor="let i of innovations"   [ngClass]="{ 
+            'bg-light': i.innovationStatus == 'PENDING',
+            'bg-success': i.innovationStatus == 'APPROVED',
+            'bg-danger': i.innovationStatus == 'REJECTED'
+          }">
                 <td>{{ i.title }}</td>
                 <td>{{ i.description }}</td>
                 <td>{{ i.innovationStatus }}</td>
@@ -42,9 +46,8 @@
           <label for="description">Description:</label><br>
           <textarea id="description" [(ngModel)]="innovation.description" name="description"></textarea>
         </div>    
-        <p *ngIf="sucessfulAdding">Uspesno dodat korisnik</p>
-        <button (click)="closeRegistrationForm()">Zatvori</button>
-        <button (click)="saveInnovation()">Kreiraj</button>
+        <button (click)="closeRegistrationForm()">Close</button>
+        <button (click)="saveInnovation()">Save</button>
       </form>
     </div>
   </div>

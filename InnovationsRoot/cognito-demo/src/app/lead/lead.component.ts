@@ -104,6 +104,7 @@ export class LeadComponent implements OnInit{
     reviewRequst.comment = this.selectedInnovation.comment;
     reviewRequst.innovationId = this.selectedInnovation.id;
     reviewRequst.userId = this.selectedInnovation.userId;
+    reviewRequst.approved = approved;
     this.employeeService.reviewInnovations(reviewRequst).subscribe({
       next: (res) => {
         this.closeRegistrationForm();
