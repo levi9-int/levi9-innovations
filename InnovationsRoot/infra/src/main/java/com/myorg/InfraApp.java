@@ -12,12 +12,12 @@ public class InfraApp {
 
 
         // MAIN STACK
-        new InfraStack(app, "InfraStack", StackProps.builder()
-                .build());
+//        new InfraStack(app, "InfraStack", StackProps.builder()
+//                .build());
 
         // MARKO DEVELOP STACK
-//        new MarkoStack(app, "MarkoStack", StackProps.builder()
-//                .build());
+        new MarkoStack(app, "MarkoStack", StackProps.builder()
+                .build());
 
 //        new UrosStack(app, "UrosStack", StackProps.builder()
 //               .build());
