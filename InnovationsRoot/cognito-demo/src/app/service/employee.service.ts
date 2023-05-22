@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'environments/environment';
 import { Innovation } from 'app/models/innovation';
+import { ReviewRequest } from 'app/models/review-request';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,11 @@ export class EmployeeService {
 
     addInnovation(innovation: Innovation): Observable<any> {
     return this.http.post<any>(this.API_PATH + 'add-innovation', innovation);
+  }
+
+  reviewInnovations(innovation:ReviewRequest): Observable<any> {
+    console.log(innovation);
+    return this.http.put<any>(this.API_PATH + 'review-innovation', innovation);
   }
 
   

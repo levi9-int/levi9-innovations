@@ -1,10 +1,10 @@
 import { InnovationStatus } from "app/enum/innovationstatus";
 
-export interface Innovation {
-    id: string;
+export interface ReviewRequest {
+    innovationId: string;
     userId: string;
     title: string;
     description: string;
-    innovationStatus: InnovationStatus | undefined;
+    approved: boolean;
     comment: string;
 }

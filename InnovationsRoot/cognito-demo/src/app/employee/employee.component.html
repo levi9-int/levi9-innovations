@@ -34,29 +34,14 @@
     <div class="popup-overlay"></div>
     <div class="popup-container">
       <form>
-        <!-- <div>
-          <label for="id">ID:</label>
-          <input type="text" id="id" [(ngModel)]="innovation.id" name="id">
-        </div> -->
         <div>
-          <label for="title">Title:</label>
+          <label for="title">Title:</label><br>
           <input type="text" id="title" [(ngModel)]="innovation.title" name="title">
         </div>
         <div>
-          <label for="description">Description:</label>
+          <label for="description">Description:</label><br>
           <textarea id="description" [(ngModel)]="innovation.description" name="description"></textarea>
-        </div>
-        <!-- <div>
-          <label for="innovationStatus">Innovation Status:</label>
-          <select name="innovationStatus" [(ngModel)]="innovation.innovationStatus">
-            <option *ngFor="let status of innovationStatus" [ngValue]="status">{{ status }}</option>
-          </select>
-        </div> -->
-        <!-- <div>
-          <label for="comment">Comment:</label>
-          <textarea id="comment" [(ngModel)]="innovation.comment" name="comment"></textarea>
-        </div> -->
-        
+        </div>    
         <p *ngIf="sucessfulAdding">Uspesno dodat korisnik</p>
         <button (click)="closeRegistrationForm()">Zatvori</button>
         <button (click)="saveInnovation()">Kreiraj</button>

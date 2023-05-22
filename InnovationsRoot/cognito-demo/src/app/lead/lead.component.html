@@ -1,6 +1,5 @@
 <div class="navigate">
     <!-- Dodajte dugme za otvaranje forme -->
-    <button (click)="showRegistrationForm()">Registracija</button>
     <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
       <img src="https://img.icons8.com/?size=512&id=108652&format=png">
       <div class="logout">LOGOUT</div>
@@ -15,28 +14,27 @@
           <!-- <th scope="col">Description</th> -->
           <th scope="col">Innovation Status</th>
           <!-- <th scope="col">Comment</th> -->
-          <th scope="col">User Id</th>
+          <th scope="col">Name</th>
+          <th scope="col">Surname</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let i of innovations" (click)="openForm(i)">
+        <tr *ngFor="let i of innovations" (click)="selectInnovation(i)">
           <td>{{ i.title }}</td>
           <!-- <td>{{ i.description }}</td> -->
           <td>{{ i.innovationStatus }}</td>
           <!-- <td>{{ i.comment }}</td> -->
-          <td>{{ i.userId }}</td>
+          <td>{{ user.givenName }}</td>
+          <td>{{ user.familyName }}</td>
         </tr>
       </tbody>
     </table>
   </div>
   
-  <!-- Dodajte div za prikaz forme -->
   <div *ngIf="showRegistrationPopup" class="popup-container">
-    <div class="popup-overlay"></div>
-    <div class="form-container">
       <h2>Forma za registraciju</h2>
-      <!-- Dodajte polja forme za registraciju -->
-      <p>aaaaaaaa</p>
-      <!-- Dugme za zatvaranje forme -->
-      <button (click)="closeRegistrationForm()">Registracija</button>
+      <label>Komentar:</label><br>
+      <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br>
+      <button (click)="reviewInnovation(true)">Approve</button>
+      <button (click)="reviewInnovation(false)">Decline</button>
   </div>

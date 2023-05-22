@@ -79,6 +79,7 @@ export class EmployeeComponent implements OnInit{
       next: (res) => {
         this.sucessfulAdding = true;
         console.log("aaaaaaaaaaaa");
+        this.showRegistrationPopup = false;
       },
       error: (err) => {
         console.log(err);
