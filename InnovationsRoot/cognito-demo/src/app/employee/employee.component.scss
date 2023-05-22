@@ -24,7 +24,7 @@ img {
     padding: 12px;
     margin: 15px;
     color: white;
-    width: 100px;
+    width: 150px;
     background-color: black;
     overflow: hidden;
 }
@@ -32,3 +32,95 @@ img {
 .user-content {
     padding: 100px;
 }
+
+.popup-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #e9dada;
+    padding: 20px;
+    z-index: 10000;
+  }
+
+  button {
+  text-decoration: none;
+  padding: 12px;
+  margin: 15px;
+  padding: 10px 20px;
+  background-color: #101110;
+  color: rgb(245, 238, 238);
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:active {
+  background-color: #3e8e41;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  z-index: 10000;
+}
+
+.popup-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-container label {
+  margin-bottom: 5px;
+}
+
+.popup-container input,
+.popup-container textarea {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 280px;
+}
+
+.popup-container button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-container button:hover {
+  background-color: #45a049;
+}
+
+.popup-container button:active {
+  background-color: #3e8e41;
+}
+
+.popup-container p {
+  margin-top: 10px;
+  color: green;
+}
+
+  

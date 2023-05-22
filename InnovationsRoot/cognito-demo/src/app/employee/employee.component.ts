@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
+import { Innovation } from '../models/innovation';
+import { InnovationStatus } from 'app/enum/innovationstatus';
 
 @Component({
   selector: 'app-employee',
@@ -10,8 +12,19 @@ import { EmployeeService } from '../service/employee.service';
 })
 export class EmployeeComponent implements OnInit{
 
+  innovations: Innovation[] = [];
+  innovation: Innovation = {} as Innovation;
+  showRegistrationPopup: boolean = false;
+  innovationStatus = Object.values(InnovationStatus);
+  sucessfulAdding: boolean = false;
+
+
+
   constructor(private router: Router, private cognitoService: CognitoService,
-    private employeeService: EmployeeService) {}
+    private employeeService: EmployeeService,
+   ) {
+
+   }
 
   ngOnInit(): void {
     this.getUserDetails();
@@ -22,6 +35,8 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
+        this.innovation.userId = user.username;
+        console.log(user.id)
         this.fetchUsersInnovations(user.username);
       }
       else {
@@ -33,6 +48,7 @@ export class EmployeeComponent implements OnInit{
   private fetchUsersInnovations(username: string) {
     this.employeeService.fetchUsersInnovations(username).subscribe({
       next: (res) => {
+        this.innovations = res;
         console.log(res);
       },
       error: (err) => {
@@ -46,6 +62,30 @@ export class EmployeeComponent implements OnInit{
     .then(() => {
       this.router.navigate(['/sign-in'])
     })
+  }
+
+  showRegistrationForm() {
+    console.log("aaaaaaaaaaaaaaaa")
+    this.showRegistrationPopup = true;
+  }
+
+  closeRegistrationForm() {
+    this.showRegistrationPopup = false;
+  }
+
+  saveInnovation(){
+    console.log(this.innovation)
+    this.employeeService.addInnovation(this.innovation).subscribe({
+      next: (res) => {
+        this.sucessfulAdding = true;
+        console.log("aaaaaaaaaaaa");
+        this.showRegistrationPopup = false;
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
+
   }
 }
 

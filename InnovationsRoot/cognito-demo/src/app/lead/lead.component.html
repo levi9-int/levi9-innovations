@@ -1,1 +1,40 @@
-<p>lead works!</p>
+<div class="navigate">
+    <!-- Dodajte dugme za otvaranje forme -->
+    <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
+      <img src="https://img.icons8.com/?size=512&id=108652&format=png">
+      <div class="logout">LOGOUT</div>
+    </a>
+  </div>
+  
+  <div class="user-content">
+    <table class="table table-striped table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Title</th>
+          <!-- <th scope="col">Description</th> -->
+          <th scope="col">Innovation Status</th>
+          <!-- <th scope="col">Comment</th> -->
+          <th scope="col">Name</th>
+          <th scope="col">Surname</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of innovations" (click)="selectInnovation(i)">
+          <td>{{ i.title }}</td>
+          <!-- <td>{{ i.description }}</td> -->
+          <td>{{ i.innovationStatus }}</td>
+          <!-- <td>{{ i.comment }}</td> -->
+          <td>{{ user.givenName }}</td>
+          <td>{{ user.familyName }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div *ngIf="showRegistrationPopup" class="popup-container">
+      <h2>Approve/decline</h2>
+      <label>Comment:</label><br>
+      <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br><br>
+      <button (click)="reviewInnovation(true)">Approve</button><br><br>
+      <button (click)="reviewInnovation(false)">Decline</button>
+  </div>
