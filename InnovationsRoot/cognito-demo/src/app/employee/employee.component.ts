@@ -4,6 +4,7 @@ import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
 import { Innovation } from '../models/innovation';
 import { InnovationStatus } from 'app/enum/innovationstatus';
+import { GetUserIdResponse } from 'app/models/get-userid-response';
 
 @Component({
   selector: 'app-employee',
@@ -12,13 +13,9 @@ import { InnovationStatus } from 'app/enum/innovationstatus';
 })
 export class EmployeeComponent implements OnInit{
 
-  innovations: Innovation[] = [];
+  getResponse: GetUserIdResponse = {} as GetUserIdResponse;
   innovation: Innovation = {} as Innovation;
-  showRegistrationPopup: boolean = false;
-  innovationStatus = Object.values(InnovationStatus);
-  sucessfulAdding: boolean = false;
-
-
+  showSubmitPopup: boolean = false;
 
   constructor(private router: Router, private cognitoService: CognitoService,
     private employeeService: EmployeeService,
@@ -36,7 +33,6 @@ export class EmployeeComponent implements OnInit{
     .then((user:any) => {
       if (user) {
         this.innovation.userId = user.username;
-        console.log(user.id)
         this.fetchUsersInnovations(user.username);
       }
       else {
@@ -48,8 +44,7 @@ export class EmployeeComponent implements OnInit{
   private fetchUsersInnovations(username: string) {
     this.employeeService.fetchUsersInnovations(username).subscribe({
       next: (res) => {
-        this.innovations = res;
-        console.log(res);
+        this.getResponse = res;
       },
       error: (err) => {
         console.log(err);
@@ -64,22 +59,20 @@ export class EmployeeComponent implements OnInit{
     })
   }
 
-  showRegistrationForm() {
-    console.log("aaaaaaaaaaaaaaaa")
-    this.showRegistrationPopup = true;
+  showSubmitForm() {
+    this.showSubmitPopup = true;
   }
 
-  closeRegistrationForm() {
-    this.showRegistrationPopup = false;
+  closeSubmitForm() {
+    this.showSubmitPopup = false;
   }
 
   saveInnovation(){
     console.log(this.innovation)
     this.employeeService.addInnovation(this.innovation).subscribe({
       next: (res) => {
-        this.sucessfulAdding = true;
-        console.log("aaaaaaaaaaaa");
-        this.showRegistrationPopup = false;
+        this.fetchUsersInnovations(this.innovation.userId);
+        this.showSubmitPopup = false;
       },
       error: (err) => {
         console.log(err);
@@ -88,5 +81,3 @@ export class EmployeeComponent implements OnInit{
 
   }
 }
-
-

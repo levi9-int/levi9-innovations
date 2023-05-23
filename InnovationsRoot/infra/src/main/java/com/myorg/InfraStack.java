@@ -55,6 +55,7 @@ public class InfraStack extends Stack {
 
         Function getInnovationsLambda = buildGetInnovationsLambda();
         innovationTable.grantReadWriteData(getInnovationsLambda);
+        employeesTable.grantReadWriteData(getInnovationsLambda);
 
         Function cognitoPostConfirmationLambda = buildCognitoPostConfirmationLambda();
         employeesTable.grantReadWriteData(cognitoPostConfirmationLambda);
@@ -66,15 +67,15 @@ public class InfraStack extends Stack {
         RestApi api = buildApiGateway();
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda));
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()));
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda));
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()));
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda));
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()));
 
     }
 
