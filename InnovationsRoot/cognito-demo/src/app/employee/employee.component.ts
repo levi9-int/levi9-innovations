@@ -3,8 +3,7 @@ import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
 import { Innovation } from '../models/innovation';
-import { InnovationStatus } from 'app/enum/innovationstatus';
-import { GetUserIdResponse } from 'app/models/get-userid-response';
+import { GetUserIdResponse } from '../models/get-userid-response';
 
 @Component({
   selector: 'app-employee',

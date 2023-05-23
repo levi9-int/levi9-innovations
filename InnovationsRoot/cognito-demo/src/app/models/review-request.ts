@@ -1,5 +1,3 @@
-import { InnovationStatus } from "app/enum/innovationstatus";
-
 export interface ReviewRequest {
     innovationId: string;
     userId: string;

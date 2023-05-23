@@ -1,4 +1,4 @@
-import { InnovationStatus } from "app/enum/innovationstatus";
+import { InnovationStatus } from "../enum/innovationstatus";
 
 export interface Innovation {
     id: string;

@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from 'environments/environment';
-import { Innovation } from 'app/models/innovation';
-import { ReviewRequest } from 'app/models/review-request';
-import { GetUserIdResponse } from 'app/models/get-userid-response';
-import { InnovationUserDetailsResponse } from 'app/models/innovation-detail-response';
+import { environment } from 'src/environments/environment.development';
+import { GetUserIdResponse } from '../models/get-userid-response';
+import { Innovation } from '../models/innovation';
+import { InnovationUserDetailsResponse } from '../models/innovation-detail-response';
+import { ReviewRequest } from '../models/review-request';
 
 @Injectable({
   providedIn: 'root'

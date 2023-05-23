@@ -20,7 +20,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.Unauthorize
 
 public class JWTUtil {
     static ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-    private final static String userPoolId = "eu-north-1_bp50VGgm8";
+    private final static String userPoolId = "eu-north-1_0kIWeu0Zk";
 
     static {
         try {

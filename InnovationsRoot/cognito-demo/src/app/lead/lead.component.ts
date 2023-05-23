@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
 import { Innovation } from '../models/innovation';
-import { ReviewRequest } from 'app/models/review-request';
-import { User } from 'app/models/user';
-import { InnovationUserDetailsResponse } from 'app/models/innovation-detail-response';
+import { InnovationUserDetailsResponse } from '../models/innovation-detail-response';
+import { ReviewRequest } from '../models/review-request';
+import { User } from '../models/user';
 
 @Component({
   selector: 'app-lead',
