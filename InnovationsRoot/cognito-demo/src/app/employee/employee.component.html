@@ -1,12 +1,17 @@
 <div class="navigate">
-    <button (click)="showRegistrationForm()">Create innovation</button>
+    <button (click)="showSubmitForm()">Create innovation</button>
     <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
         <img src="https://img.icons8.com/?size=512&id=108652&format=png">
         <div class="logout" >LOGOUT</div>
     </a>
-    
 </div>
 
+<div class="card d-flex align-items-center m-auto">
+  <label>First name: {{ getResponse.name }}</label>
+  <label>Last name: {{ getResponse.lastname }}</label>
+  <label>User Id:  {{ innovation.userId }}</label>
+  <button class="btn btn-outline-dark">Tokens: {{ getResponse.tokens }}</button>
+</div> 
 
 <div class="user-content">
     <table class="table table-striped table-bordered">
@@ -19,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let i of innovations"   [ngClass]="{ 
+            <tr *ngFor="let i of getResponse.innovations"   [ngClass]="{ 
             'bg-light': i.innovationStatus == 'PENDING',
             'bg-success': i.innovationStatus == 'APPROVED',
             'bg-danger': i.innovationStatus == 'REJECTED'
@@ -34,7 +39,7 @@
 </div>
 
 
-<div *ngIf="showRegistrationPopup">
+<div *ngIf="showSubmitPopup">
     <div class="popup-overlay"></div>
     <div class="popup-container">
       <form>
@@ -46,8 +51,8 @@
           <label for="description">Description:</label><br>
           <textarea id="description" [(ngModel)]="innovation.description" name="description"></textarea>
         </div>    
-        <button (click)="closeRegistrationForm()">Close</button>
-        <button (click)="saveInnovation()">Save</button>
+        <button id="approveBtn" (click)="saveInnovation()">Save</button>
+        <button id="declineBtn" (click)="closeSubmitForm()">Close</button>
       </form>
     </div>
   </div>

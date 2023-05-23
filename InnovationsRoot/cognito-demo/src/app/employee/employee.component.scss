@@ -101,18 +101,37 @@ button:active {
   width: 280px;
 }
 
-.popup-container button {
+.popup-container #approveBtn {
   padding: 10px 20px;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 180px;
+  margin-left: 35px;
 }
 
-.popup-container button:hover {
+.popup-container #declineBtn {
+  padding: 10px 20px;
+  background-color: #e12525;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 180px;
+  margin-left: 35px;
+
+}
+
+.popup-container #approveBtn:hover {
   background-color: #45a049;
 }
+
+.popup-container #declineBtn:hover {
+  background-color: #c82626;
+}
+
 
 .popup-container button:active {
   background-color: #3e8e41;
