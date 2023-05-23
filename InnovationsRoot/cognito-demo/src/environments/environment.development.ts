@@ -1,8 +1,8 @@
 export const environment = {
     production: false,
     cognito: {
-        userPoolId: 'eu-north-1_icMyKXxBu',
-        userPoolWebClientId: '109t3jh4rj4lklr1oclet5jat2'
+        userPoolId: 'eu-north-1_0kIWeu0Zk',
+        userPoolWebClientId: '3cs5nmjqfi3t44s07dnkiqq5i'
     },
-    apiPath:'https://4jqf083tg3.execute-api.eu-north-1.amazonaws.com/prod/',
+    apiPath:'https://53peempp9b.execute-api.eu-north-1.amazonaws.com/prod/',
 };

@@ -64,19 +64,60 @@ public class InfraStack extends Stack {
 
         verifyMailBySES(AWS_SES_IDENTITY);
 
+        // Create the custom authorizer Lambda function
+        Function authorizerFunction = buildAuthorizerLambda();
+
+
+        RequestAuthorizer customAuthorizer = RequestAuthorizer.Builder.create(this, "CustomAuthorizer")
+                .handler(authorizerFunction.getCurrentVersion())
+                .identitySources(singletonList("method.request.header.Authorization"))
+                .resultsCacheTtl(Duration.hours(1))
+                .build();
+
         RestApi api = buildApiGateway();
+
+
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()));
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()));
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()));
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
+    }
+
+    private Function buildAuthorizerLambda() {
+        // Create the custom authorizer Lambda function
+        Function authorizerFunction = Function.Builder.create(this, "AuthorizerFunction")
+                .runtime(Runtime.JAVA_11)
+                .code(Code.fromAsset("../assets/LambdaAuthorizerHandler.jar"))
+                .handler("org.example.LambdaAuthorizerHandler")
+                .timeout(Duration.seconds(30))
+                .memorySize(512)
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) authorizerFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return authorizerFunction;
     }
 
     private Function buildCognitoPostConfirmationLambda() {
@@ -105,7 +146,6 @@ public class InfraStack extends Stack {
                 .selfSignUpEnabled(true)
                 .signInAliases(SignInAliases.builder().email(true).username(false).build())
                 .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
-
                 .userVerification(UserVerificationConfig.builder()
                         .emailSubject("Verify your email.")
                         .emailBody("Thanks for signing up to our awesome app! Your verification code is {####}")
@@ -168,6 +208,7 @@ public class InfraStack extends Stack {
                 .build();
 
         attachLeadToGroup.getNode().addDependency(leadUser);
+
     }
 
     private Function buildGetInnovationsLambda() {
@@ -282,10 +323,10 @@ public class InfraStack extends Stack {
 
         boolean verificationAttributesAreEmpty = verificationResponse.verificationAttributes().entrySet().isEmpty();
         boolean verificationStatusIsPending = false;
-        if(!verificationAttributesAreEmpty)
+        if (!verificationAttributesAreEmpty)
             verificationStatusIsPending = verificationResponse.verificationAttributes().entrySet().iterator()
                     .next().getValue().verificationStatusAsString().equals("Pending");
-        if(verificationAttributesAreEmpty || verificationStatusIsPending)
+        if (verificationAttributesAreEmpty || verificationStatusIsPending)
             sesClient.verifyEmailIdentity(VerifyEmailIdentityRequest.builder()
                     .emailAddress(mail)
                     .build());
@@ -311,9 +352,9 @@ public class InfraStack extends Stack {
         GlobalSecondaryIndexProps gsi = GlobalSecondaryIndexProps.builder()
                 .indexName("innovationStatus-index")
                 .partitionKey(Attribute.builder()
-                    .name("innovationStatus")
-                    .type(AttributeType.STRING)
-                    .build())
+                        .name("innovationStatus")
+                        .type(AttributeType.STRING)
+                        .build())
                 .projectionType(ProjectionType.ALL)
                 .readCapacity(1)
                 .writeCapacity(1)
