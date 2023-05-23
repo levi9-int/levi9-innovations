@@ -68,12 +68,6 @@
             <version>${cdk.version}-alpha.0</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>software.amazon.awscdk</groupId>-->
-<!--            <artifactId>apigatewayv2-authorizers</artifactId>-->
-<!--            <version>1.201.0</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>ses</artifactId>

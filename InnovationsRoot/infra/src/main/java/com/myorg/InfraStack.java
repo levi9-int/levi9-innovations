@@ -55,6 +55,7 @@ public class InfraStack extends Stack {
 
         Function getInnovationsLambda = buildGetInnovationsLambda();
         innovationTable.grantReadWriteData(getInnovationsLambda);
+        employeesTable.grantReadWriteData(getInnovationsLambda);
 
         Function cognitoPostConfirmationLambda = buildCognitoPostConfirmationLambda();
         employeesTable.grantReadWriteData(cognitoPostConfirmationLambda);
@@ -141,7 +142,7 @@ public class InfraStack extends Stack {
     }
 
     private UserPool buildUserPool(Function cognitoPostConfirmationLambda) {
-        UserPool userPool = UserPool.Builder.create(this, "user-pool-md")
+        UserPool userPool = UserPool.Builder.create(this, "user-pool-1")
                 .selfSignUpEnabled(true)
                 .signInAliases(SignInAliases.builder().email(true).username(false).build())
                 .autoVerify(AutoVerifiedAttrs.builder().email(true).build())

@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
+import { Innovation } from '../models/innovation';
+import { InnovationStatus } from 'app/enum/innovationstatus';
+import { GetUserIdResponse } from 'app/models/get-userid-response';
 
 @Component({
   selector: 'app-employee',
@@ -10,8 +13,15 @@ import { EmployeeService } from '../service/employee.service';
 })
 export class EmployeeComponent implements OnInit{
 
+  getResponse: GetUserIdResponse = {} as GetUserIdResponse;
+  innovation: Innovation = {} as Innovation;
+  showSubmitPopup: boolean = false;
+
   constructor(private router: Router, private cognitoService: CognitoService,
-    private employeeService: EmployeeService) {}
+    private employeeService: EmployeeService,
+   ) {
+
+   }
 
   ngOnInit(): void {
     this.getUserDetails();
@@ -22,7 +32,8 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        // this.fetchUsersInnovations(user.username);
+        this.innovation.userId = user.username;
+        this.fetchUsersInnovations(user.username);
       }
       else {
         this.router.navigate(['/sign-in']);
@@ -33,7 +44,7 @@ export class EmployeeComponent implements OnInit{
   private fetchUsersInnovations(username: string) {
     this.employeeService.fetchUsersInnovations(username).subscribe({
       next: (res) => {
-        console.log(res);
+        this.getResponse = res;
       },
       error: (err) => {
         console.log(err);
@@ -47,6 +58,26 @@ export class EmployeeComponent implements OnInit{
       this.router.navigate(['/sign-in'])
     })
   }
+
+  showSubmitForm() {
+    this.showSubmitPopup = true;
+  }
+
+  closeSubmitForm() {
+    this.showSubmitPopup = false;
+  }
+
+  saveInnovation(){
+    console.log(this.innovation)
+    this.employeeService.addInnovation(this.innovation).subscribe({
+      next: (res) => {
+        this.fetchUsersInnovations(this.innovation.userId);
+        this.showSubmitPopup = false;
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
+
+  }
 }
-
-
