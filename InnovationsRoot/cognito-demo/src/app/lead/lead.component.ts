@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
 import { Innovation } from '../models/innovation';
-import { InnovationStatus } from 'app/enum/innovationstatus';
 import { ReviewRequest } from 'app/models/review-request';
 import { User } from 'app/models/user';
+import { InnovationUserDetailsResponse } from 'app/models/innovation-detail-response';
 
 @Component({
   selector: 'app-lead',
@@ -16,12 +16,9 @@ import { User } from 'app/models/user';
 export class LeadComponent implements OnInit{
 
 
-  showRegistrationPopup: boolean = false;
-  innovations: Innovation[] = []; 
+  showReviewPopup: boolean = false;
+  innovationUserList: InnovationUserDetailsResponse[] = []; 
   selectedInnovation: Innovation = {} as Innovation;
-  selectedUserId: string | undefined;
-  selecetedInnovationId: string | undefined;
-  comment : string = "";
   user: User = {} as User;
 
   constructor(private router: Router, private cognitoService: CognitoService,
@@ -39,8 +36,6 @@ export class LeadComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        console.log(user);
-        console.log("ASADSFBSFB "+user.attributes.given_name);
         this.user.givenName = user.attributes.given_name;
         this.user.familyName = user.attributes.family_name;
         //this.user = user;
@@ -55,8 +50,7 @@ export class LeadComponent implements OnInit{
   private fetchPendingInnovations() {
     this.employeeService.fetchPendingInnovations().subscribe({
       next: (res) => {
-        this.innovations = res;
-        console.log(res);
+        this.innovationUserList = res;
       },
       error: (err) => {
         console.log(err);
@@ -71,30 +65,18 @@ export class LeadComponent implements OnInit{
     })
   }
 
-  showRegistrationForm() {
-    console.log("aaaaaaaaaaaaaaaa")
-    this.showRegistrationPopup = true;
+  showReviewForm() {
+    this.showReviewPopup = true;
   }
 
-  closeRegistrationForm() {
-    
-    this.showRegistrationPopup = false;
-    console.log("zatvori se smore");
-    
+  closeReviewForm() {
+    this.showReviewPopup = false;
   }
 
   selectInnovation(innovation: Innovation) {
     this.selectedInnovation = innovation;
-    this.showRegistrationPopup = true;
-    // Otvorite formu ili izvršite druge akcije koje su vam potrebne
-  }
-
-  openForm(userId: string, innovationId:string) {
-    this.selecetedInnovationId = innovationId;
-    console.log(innovationId);
-    this.selectedUserId = userId;
-    console.log(userId);
-    this.showRegistrationPopup = true;
+    this.showReviewPopup = true;
+    // Otvorite formu ili izvrÅ¡ite druge akcije koje su vam potrebne
   }
 
   reviewInnovation(approved: boolean){
@@ -107,8 +89,8 @@ export class LeadComponent implements OnInit{
     reviewRequst.approved = approved;
     this.employeeService.reviewInnovations(reviewRequst).subscribe({
       next: (res) => {
-        this.closeRegistrationForm();
-        console.log(res);
+        this.fetchPendingInnovations();
+        this.closeReviewForm();
       },
       error: (err) => {
         console.log(err);
