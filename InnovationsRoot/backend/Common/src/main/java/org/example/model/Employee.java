@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@DynamoDBTable(tableName="employees-md")
+@DynamoDBTable(tableName="employees")
 public class Employee {
 
     @DynamoDBHashKey(attributeName = "employeeId")

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,14 @@ public class GetInnovationController {
             value = "/get-innovation",
             produces = "application/json"
     )
-    public ResponseEntity<?> getByUserId(@RequestParam Map<String,String> allParams) {
+    public ResponseEntity<?> getByUserId(@RequestParam Map<String,String> allParams, Principal principal) {
 
+        if (principal == null) {
+            System.out.println("principal null");
+        }
+        else {
+            System.out.println(principal.getName());
+        }
         ResponseEntity<List<Innovation>> response;
         if(allParams.containsKey("userId"))
             response = new ResponseEntity<>(builder.getByUserId(allParams.get("userId")), HttpStatus.OK);

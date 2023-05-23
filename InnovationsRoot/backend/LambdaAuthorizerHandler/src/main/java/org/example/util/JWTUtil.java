@@ -16,14 +16,17 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UnauthorizedException;
 
 public class JWTUtil {
     static ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+    private final static String userPoolId = "eu-north-1_bp50VGgm8";
+
     static {
         try {
             JWKSource keySource = null;
             keySource = new RemoteJWKSet(
-                    new URL("https://cognito-idp."+"eu-north-1"+".amazonaws.com/"+"eu-north-1_qq9JCoB3x"+"/.well-known/jwks.json"));
+                    new URL("https://cognito-idp."+"eu-north-1"+".amazonaws.com/"+ userPoolId +"/.well-known/jwks.json"));
             JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
             JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
             jwtProcessor.setJWSKeySelector(keySelector);

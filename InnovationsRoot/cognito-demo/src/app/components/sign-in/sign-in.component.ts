@@ -27,17 +27,32 @@ export class SignInComponent implements OnInit{
   signInWithCognito() {
     if (this.user && this.user.email && this.user.password) {
       this.cognitoService.signIn(this.user)
-      .then((res) => {
-        console.log(res.signInUserSession);
-        this.cognitoService.setAccessToken(res.signInUserSession.idToken);
-        // todo: check if logged in user is employee or lead
-        this.router.navigate(['/employee'])
+      .then((cogUser) => {
+        console.log(cogUser);
+        if (!cogUser.signInUserSession) {
+          this.cognitoService.changeLeadPassword(cogUser, 'JanaLead123')
+          .then((res) => {
+            this.successSignIn(res);
+          })
+        }
+        else {
+          this.successSignIn(cogUser);
+        }
       })
       .catch((error: any) => {
         this.displayAlert(error.message);
       })
     }
   }
+
+  
+  successSignIn(cogUser: any) {
+    this.cognitoService.setAccessToken(cogUser.signInUserSession.idToken);
+    if (cogUser.signInUserSession.idToken.payload['cognito:groups'].includes('EmployeeGroup'))
+      this.router.navigate(['/employee'])
+    else 
+      this.router.navigate(['/lead'])
+  } 
 
   private displayAlert(message:string) {
     this.alertMessage = message;
@@ -76,3 +91,4 @@ export class SignInComponent implements OnInit{
   }
 
 }
+

@@ -22,7 +22,7 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        this.fetchUsersInnovations(user.username);
+        // this.fetchUsersInnovations(user.username);
       }
       else {
         this.router.navigate(['/sign-in']);

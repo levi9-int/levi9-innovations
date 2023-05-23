@@ -40,6 +40,10 @@ export class CognitoService {
     return Auth.confirmSignUp(user.email, user.code);
   }
 
+  public changeLeadPassword(user: User, password: string) : Promise<any> {
+    return Auth.completeNewPassword(user, password);
+  }
+
   // this method will return user info if any user
   // is logged in with valid email and password
   public getUser(): Promise<any> {

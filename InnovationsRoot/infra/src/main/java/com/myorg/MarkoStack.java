@@ -77,7 +77,7 @@ public class MarkoStack extends Stack {
         RequestAuthorizer customAuthorizer = RequestAuthorizer.Builder.create(this, "CustomAuthorizer")
                 .handler(authorizerFunction)
                 .identitySources(singletonList("method.request.header.Authorization"))
-                .resultsCacheTtl(Duration.seconds(300))
+                .resultsCacheTtl(Duration.hours(1))
                 .build();
 
         RestApi api = buildApiGateway();
@@ -85,28 +85,27 @@ public class MarkoStack extends Stack {
 
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda), MethodOptions.builder()
-                        .authorizationType(AuthorizationType.CUSTOM)
-                        .authorizer(customAuthorizer)
-                        .build());
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda), MethodOptions.builder()
-                        .authorizationType(AuthorizationType.CUSTOM)
-                        .authorizer(customAuthorizer)
-                        .build());
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda), MethodOptions.builder()
-                        .authorizationType(AuthorizationType.CUSTOM)
-                        .authorizer(customAuthorizer)
-                        .build());
-
-//        CognitoUserPoolsAuthorizer authorizer = CognitoUserPoolsAuthorizer.Builder.create(this, "cognitoAuthorizer")
-//                .cognitoUserPools(singletonList(userPool))
-//                .build();
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
 
     }
 
@@ -119,6 +118,10 @@ public class MarkoStack extends Stack {
                 .timeout(Duration.seconds(30))
                 .memorySize(512)
                 .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) authorizerFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
         return authorizerFunction;
     }
@@ -149,7 +152,6 @@ public class MarkoStack extends Stack {
                 .selfSignUpEnabled(true)
                 .signInAliases(SignInAliases.builder().email(true).username(false).build())
                 .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
-
                 .userVerification(UserVerificationConfig.builder()
                         .emailSubject("Verify your email.")
                         .emailBody("Thanks for signing up to our awesome app! Your verification code is {####}")
@@ -212,6 +214,7 @@ public class MarkoStack extends Stack {
                 .build();
 
         attachLeadToGroup.getNode().addDependency(leadUser);
+
     }
 
     private Function buildGetInnovationsLambda() {
