@@ -23,6 +23,8 @@
     <module>./backend/ApproveDeclineInnovationLambda</module>
     <module>./backend/CognitoPostConfirmationLambda</module>
       <module>./backend/LambdaAuthorizerHandler</module>
+      <module>./backend/SubmitProductLambda</module>
+      <module>./backend/GetProductsLambda</module>
   </modules>
 
   <properties>
