@@ -1,4 +1,4 @@
-.modal {
+.modal-err {
     position: fixed;
     z-index: 1;
     padding-top: 100px;
@@ -10,7 +10,7 @@
     background-color: rgba(0,0,0,0.4);
 }
 
-.modal-content {
+.modal-content-err {
     position: relative;
     background-color: #fefefe;
     margin: auto;
@@ -19,7 +19,7 @@
     width: 60%;
 }
 
-.close {
+.close-err {
     position: absolute;
     right: 15px;
     top: 5px;
@@ -29,7 +29,7 @@
 
 }
 
-.close:hover, .close:focus {
+.close-err:hover, .close-err:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;

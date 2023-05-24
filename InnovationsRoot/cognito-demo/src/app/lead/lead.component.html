@@ -11,6 +11,9 @@
     <a class="dropdown-item active" href="#">Active link</a>
     <a class="dropdown-item" href="#">Another link</a>
   </div>
+  <div class="card d-flex align-items-center m-auto">
+    <label>Logged in as: {{ user.givenName }} {{ user.familyName }}</label>
+  </div> 
   
   <div class="user-content">
     <table class="table table-striped table-bordered">
@@ -41,6 +44,7 @@
       <button type="button" (click)="closeReviewForm()" class="btn-close" aria-label="Close"></button>
       <h2>Approve/decline</h2><br>
       <h5>Title: {{ selectedInnovation.title }}</h5><br>
+      <h5>Description: {{ selectedInnovation.description }}</h5>
       <label>Comment:</label><br>
       <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br><br>
       <button id="approveBtn" (click)="reviewInnovation(true)">Approve</button><br><br>
