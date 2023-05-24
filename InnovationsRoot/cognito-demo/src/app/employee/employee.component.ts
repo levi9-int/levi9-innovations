@@ -31,6 +31,8 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
+        this.getResponse.name = user.attributes.given_name;
+        this.getResponse.lastname = user.attributes.family_name;
         this.innovation.userId = user.username;
         this.fetchUsersInnovations(user.username);
       }

@@ -62,9 +62,7 @@ public class InnovationBuilder {
                 .withKeyConditionExpression("userId = :u")
                 .withExpressionAttributeValues(expressionAttributeValues);
 
-        List<Innovation> innovations = mapper.query(Innovation.class, queryExpression);
-
-        return (!innovations.isEmpty()) ? innovations : null;
+        return mapper.query(Innovation.class, queryExpression);
     }
 
 //        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
@@ -90,8 +88,7 @@ public class InnovationBuilder {
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withConsistentRead(false);
 
-        List<Innovation> innovations = mapper.query(Innovation.class, queryExpression);
-        return (!innovations.isEmpty()) ? innovations : null;
+        return mapper.query(Innovation.class, queryExpression);
 
 //        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 //

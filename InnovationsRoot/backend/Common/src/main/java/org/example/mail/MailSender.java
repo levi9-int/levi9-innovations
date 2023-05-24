@@ -48,7 +48,7 @@ public class MailSender {
         SendEmailRequest emailRequest = SendEmailRequest.builder()
                 .destination(destination)
                 .content(emailContent)
-                .fromEmailAddress("zaricu22@gmail.com")
+                .fromEmailAddress("noreply.innovations@gmail.com")
                 .build();
         try {
             client.sendEmail(emailRequest);

@@ -2,8 +2,8 @@ package org.example.controller;
 
 import org.example.builder.EmployeeBuilder;
 import org.example.builder.InnovationBuilder;
-import org.example.dto.innovationUserIdResponse;
-import org.example.dto.innovationWithUserDetails;
+import org.example.dto.InnovationUserIdResponse;
+import org.example.dto.InnovationWithUserDetails;
 import org.example.model.Employee;
 //import org.example.repository.InnovationRepository;
 import org.example.model.Innovation;
@@ -31,15 +31,18 @@ public class GetInnovationController {
         ResponseEntity<?> response;
         if(allParams.containsKey("userId")) {
             Employee emp = employeeBuilder.findById(allParams.get("userId"));
-            innovationUserIdResponse getResponse = new innovationUserIdResponse(emp.getName(), emp.getLastName(), emp.getTokens(), innovationBuilder.getByUserId(allParams.get("userId")));
+            if (emp == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            InnovationUserIdResponse getResponse = new InnovationUserIdResponse(emp.getName(), emp.getLastName(), emp.getTokens(), innovationBuilder.getByUserId(allParams.get("userId")));
             response = new ResponseEntity<>(getResponse, HttpStatus.OK);
         }
         else if(allParams.containsKey("status")) {
             List<Innovation> innovations = innovationBuilder.getByStatus(allParams.get("status"));
-            List<innovationWithUserDetails> responseList = new ArrayList<>();
+            List<InnovationWithUserDetails> responseList = new ArrayList<>();
             for (Innovation i : innovations) {
                 Employee emp = employeeBuilder.findById(i.getUserId());
-                responseList.add(new innovationWithUserDetails(i, emp));
+                responseList.add(new InnovationWithUserDetails(i, emp));
             }
             response = new ResponseEntity<>(responseList, HttpStatus.OK);
         }

@@ -32,6 +32,8 @@ export class SignInComponent implements OnInit{
         if (!cogUser.signInUserSession) {
           this.cognitoService.changeLeadPassword(cogUser, 'JanaLead123')
           .then((res) => {
+            console.log('then');
+            
             this.successSignIn(res);
           })
         }
@@ -47,6 +49,8 @@ export class SignInComponent implements OnInit{
 
   
   successSignIn(cogUser: any) {
+    console.log(cogUser);
+    
     this.cognitoService.setAccessToken(cogUser.signInUserSession.idToken);
     if (cogUser.signInUserSession.idToken.payload['cognito:groups'].includes('EmployeeGroup'))
       this.router.navigate(['/employee'])

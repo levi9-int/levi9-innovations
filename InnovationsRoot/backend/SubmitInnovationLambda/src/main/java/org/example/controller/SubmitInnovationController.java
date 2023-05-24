@@ -17,7 +17,7 @@ import java.security.Principal;
 @CrossOrigin
 public class SubmitInnovationController {
 
-    private static final String LEAD_MAIL = "sfetel21@outlook.com";
+    private static final String LEAD_MAIL = "savic.jana15@gmail.com";
     private final InnovationBuilder builder = InnovationBuilder.createBuilder();
     private final EmployeeBuilder employeeRepo = EmployeeBuilder.createBuilder();
     private final MailSender mailSender = MailSender.createMailSender();
