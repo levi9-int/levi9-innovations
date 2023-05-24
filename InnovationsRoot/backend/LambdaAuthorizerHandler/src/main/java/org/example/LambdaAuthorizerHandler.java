@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
-import org.example.util.JWTUtil;
+import org.example.utils.JWTUtil;
 import org.example.util.PolicyDocument;
 import org.example.util.Response;
 import org.example.util.Statement;

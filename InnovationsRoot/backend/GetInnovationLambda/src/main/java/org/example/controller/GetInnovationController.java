@@ -1,56 +1,53 @@
 package org.example.controller;
 
-import org.example.builder.EmployeeBuilder;
-import org.example.builder.InnovationBuilder;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.HttpHead;
 import org.example.dto.InnovationUserIdResponse;
 import org.example.dto.InnovationWithUserDetails;
-import org.example.model.Employee;
-//import org.example.repository.InnovationRepository;
-import org.example.model.Innovation;
+import org.example.service.InnovationService;
+import org.example.utils.JWTUtil;
+import org.example.utils.JwtDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @CrossOrigin
 public class GetInnovationController {
+    private final InnovationService innovationService;
 
-    private final InnovationBuilder innovationBuilder = InnovationBuilder.createBuilder();
-    private final EmployeeBuilder employeeBuilder = EmployeeBuilder.createBuilder();
+    public GetInnovationController(InnovationService innovationService) {
+        this.innovationService = innovationService;
+    }
 
     @GetMapping(
             value = "/get-innovation",
             produces = "application/json"
     )
-    public ResponseEntity<?> getByUserId(@RequestParam Map<String,String> allParams) {
+    public ResponseEntity<?> getInnovations(@RequestParam Map<String, String> allParams, @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
 
-        ResponseEntity<?> response;
-        if(allParams.containsKey("userId")) {
-            Employee emp = employeeBuilder.findById(allParams.get("userId"));
-            if (emp == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            InnovationUserIdResponse getResponse = new InnovationUserIdResponse(emp.getName(), emp.getLastName(), emp.getTokens(), innovationBuilder.getByUserId(allParams.get("userId")));
-            response = new ResponseEntity<>(getResponse, HttpStatus.OK);
-        }
-        else if(allParams.containsKey("status")) {
-            List<Innovation> innovations = innovationBuilder.getByStatus(allParams.get("status"));
-            List<InnovationWithUserDetails> responseList = new ArrayList<>();
-            for (Innovation i : innovations) {
-                Employee emp = employeeBuilder.findById(i.getUserId());
-                responseList.add(new InnovationWithUserDetails(i, emp));
-            }
-            response = new ResponseEntity<>(responseList, HttpStatus.OK);
-        }
-        else if(allParams.isEmpty())
-            response = new ResponseEntity<>(innovationBuilder.getAll(), HttpStatus.OK);
+        for(String key: allParams.keySet())
+            System.out.println(key);
+
+        System.out.println(JwtDecoder.getUsername(accessToken));
+//        String sub = JWTUtil.getSub(accessToken, "sub");
+//        System.out.println(sub);
+
+        if (allParams.containsKey("userId")) {
+            InnovationUserIdResponse innovationDTO = innovationService.getInnovationsForUser(allParams.get("userId"));
+            return new ResponseEntity<>(innovationDTO, HttpStatus.OK);
+
+        } else if (allParams.containsKey("status")) {
+            List<InnovationWithUserDetails> innovationsByStatus = innovationService.getByStatus(allParams.get("status"));
+            return new ResponseEntity<>(innovationsByStatus, HttpStatus.OK);
+
+        } else if (allParams.isEmpty())
+            return new ResponseEntity<>(innovationService.getAll(), HttpStatus.OK);
+
         else
-            response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        return response;
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

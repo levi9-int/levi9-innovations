@@ -100,7 +100,6 @@ public class InfraStack extends Stack {
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
                                 .build());
-
     }
 
     private Function buildAuthorizerLambda() {
@@ -165,7 +164,8 @@ public class InfraStack extends Stack {
                         .build())
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .accountRecovery(AccountRecovery.EMAIL_ONLY)
-                .lambdaTriggers(UserPoolTriggers.builder().postConfirmation(cognitoPostConfirmationLambda).build())
+                .lambdaTriggers(UserPoolTriggers.builder()
+                        .postConfirmation(cognitoPostConfirmationLambda.getCurrentVersion()).build())
                 .build();
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "user_pool_client")

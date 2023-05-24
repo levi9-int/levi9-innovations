@@ -7,4 +7,5 @@ export interface Innovation {
     description: string;
     innovationStatus: InnovationStatus;
     comment: string;
+    tokenAmount: number;
 }
