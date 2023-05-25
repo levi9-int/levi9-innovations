@@ -7,20 +7,19 @@ import org.example.enums.InnovationStatus;
 import org.example.mail.MailSender;
 import org.example.model.Employee;
 import org.example.model.Innovation;
+import org.example.service.InnovationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-
 @RestController
 @CrossOrigin
 public class SubmitInnovationController {
+    private final InnovationService innovationService;
 
-    private static final String LEAD_MAIL = "savic.jana15@gmail.com";
-    private final InnovationBuilder builder = InnovationBuilder.createBuilder();
-    private final EmployeeBuilder employeeRepo = EmployeeBuilder.createBuilder();
-    private final MailSender mailSender = MailSender.createMailSender();
+    public SubmitInnovationController(InnovationService innovationService) {
+        this.innovationService = innovationService;
+    }
 
     @PostMapping(
             value = "/add-innovation",
@@ -30,23 +29,9 @@ public class SubmitInnovationController {
     public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest) {
 
 //        System.out.println(principal.getName()); try with Principal
-
-        Innovation i = new Innovation(innovationRequest.getTitle(), innovationRequest.getDescription(),
-                InnovationStatus.PENDING, innovationRequest.getUserId());
-
-        Employee emp = getEmployee(i);
-        String recipient = LEAD_MAIL;
-        String subject = "New innovation \""+i.getTitle()+"\" was created by "+emp.getName()+" "+emp.getLastName();
-        String body = "";
-        boolean successSending = mailSender.send(recipient, subject, body);
-        if(!successSending)
-            new ResponseEntity<>("Mail isn't succesfully sent!", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        builder.save(i);
+        this.innovationService.createInnovation(innovationRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
-    }
 
-    private Employee getEmployee(Innovation innovation) {
-        return employeeRepo.findById(innovation.getUserId());
+
     }
 }

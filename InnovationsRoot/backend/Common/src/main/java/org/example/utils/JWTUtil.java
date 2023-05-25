@@ -1,4 +1,4 @@
-package org.example.util;
+package org.example.utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,11 +16,12 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.UnauthorizedException;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class JWTUtil {
     static ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-    private final static String userPoolId = "eu-north-1_0kIWeu0Zk";
+    private final static String userPoolId = "eu-north-1_KkldHIWwQ";
 
     static {
         try {

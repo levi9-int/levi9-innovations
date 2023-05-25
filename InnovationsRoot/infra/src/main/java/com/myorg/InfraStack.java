@@ -76,7 +76,7 @@ public class InfraStack extends Stack {
 
 
         RequestAuthorizer customAuthorizer = RequestAuthorizer.Builder.create(this, "CustomAuthorizer")
-                .handler(authorizerFunction)
+                .handler(authorizerFunction.getCurrentVersion())
                 .identitySources(singletonList("method.request.header.Authorization"))
                 .resultsCacheTtl(Duration.hours(1))
                 .build();
@@ -86,7 +86,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda),
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -94,7 +94,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda),
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -102,11 +102,12 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda),
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
                                 .build());
+
 
         api.getRoot()
                 .addResource("add-products")
@@ -226,7 +227,8 @@ public class InfraStack extends Stack {
                         .build())
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .accountRecovery(AccountRecovery.EMAIL_ONLY)
-                .lambdaTriggers(UserPoolTriggers.builder().postConfirmation(cognitoPostConfirmationLambda).build())
+                .lambdaTriggers(UserPoolTriggers.builder()
+                        .postConfirmation(cognitoPostConfirmationLambda.getCurrentVersion()).build())
                 .build();
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "user_pool_client")

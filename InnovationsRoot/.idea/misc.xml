@@ -12,6 +12,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/backend/GetProductsLambda/pom.xml" />
         <option value="$PROJECT_DIR$/functions/pom.xml" />
       </set>
     </option>

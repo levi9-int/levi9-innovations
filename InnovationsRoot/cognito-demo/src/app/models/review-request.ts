@@ -5,4 +5,5 @@ export interface ReviewRequest {
     description: string;
     approved: boolean;
     comment: string;
+    tokenAmount: number;
 }
