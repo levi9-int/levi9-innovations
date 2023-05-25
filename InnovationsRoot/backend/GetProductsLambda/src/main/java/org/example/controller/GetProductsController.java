@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.builder.ProductBuilder;
 import org.example.model.Product;
+import org.example.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,19 +15,18 @@ import java.util.List;
 @CrossOrigin
 public class GetProductsController {
 
-    private final ProductBuilder productBuilder = ProductBuilder.createBuilder();
+    private final ProductService productService;
+
+    public GetProductsController(ProductService productService){
+        this.productService = productService;
+    }
 
     @GetMapping(
             value = "/get-products",
             produces = "application/json"
-    )
+    )public ResponseEntity<?> getAllProducts(){
 
-
-    public ResponseEntity<?> getAllProducts(){
-
-        System.out.println("dobaviiiiiiiiiiiiii");
-        List<Product> productsList = productBuilder.getAll();
-        System.out.println(productsList);
+        List<Product> productsList = productService.getProducts();
         return new ResponseEntity<>(productsList,HttpStatus.OK);
     }
 }

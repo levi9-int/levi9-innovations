@@ -57,6 +57,7 @@ public class InfraStack extends Stack {
         Function getInnovationsLambda = buildGetInnovationsLambda();
         innovationTable.grantReadWriteData(getInnovationsLambda);
         employeesTable.grantReadWriteData(getInnovationsLambda);
+        productTable.grantReadWriteData(getInnovationsLambda);
 
         Function cognitoPostConfirmationLambda = buildCognitoPostConfirmationLambda();
         employeesTable.grantReadWriteData(cognitoPostConfirmationLambda);
@@ -66,6 +67,10 @@ public class InfraStack extends Stack {
 
         Function getProductsLambda = buildGetAllProductLambda();
         productTable.grantReadWriteData(getProductsLambda);
+
+        Function buyProductLambda = buildBuyProductLambda();
+        employeesTable.grantReadWriteData(buyProductLambda);
+        productTable.grantReadWriteData(buyProductLambda);
 
         UserPool userPool = buildUserPool(cognitoPostConfirmationLambda);
 
@@ -83,10 +88,9 @@ public class InfraStack extends Stack {
 
         RestApi api = buildApiGateway();
 
-
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()),
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -94,7 +98,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()),
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -102,7 +106,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()),
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -125,6 +129,13 @@ public class InfraStack extends Stack {
                                     .authorizer(customAuthorizer)
                                     .build());
 
+        api.getRoot()
+                .addResource("buy-product")
+                .addMethod("POST", new LambdaIntegration(buyProductLambda),
+                MethodOptions.builder()
+                        .authorizationType(AuthorizationType.CUSTOM)
+                        .authorizer(customAuthorizer)
+                        .build());
 
     }
 
@@ -228,7 +239,7 @@ public class InfraStack extends Stack {
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .accountRecovery(AccountRecovery.EMAIL_ONLY)
                 .lambdaTriggers(UserPoolTriggers.builder()
-                        .postConfirmation(cognitoPostConfirmationLambda.getCurrentVersion()).build())
+                        .postConfirmation(cognitoPostConfirmationLambda).build())
                 .build();
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "user_pool_client")
@@ -246,26 +257,33 @@ public class InfraStack extends Stack {
                 .groupName("EngineeringLeadGroup")
                 .build();
 
-        addLeadToGroup(userPool, leadGroup);
+        addLeadToGroup(leadGroup);
+
+        CfnUserPoolGroup adminGroup = CfnUserPoolGroup.Builder.create(this, "admin_group")
+                .userPoolId(userPool.getUserPoolId())
+                .groupName("AdminGroup")
+                .build();
+
+        addAdminToGroup(adminGroup);
 
         return userPool;
     }
 
-    private void addLeadToGroup(UserPool userPool, CfnUserPoolGroup leadGroup) {
+    private void addLeadToGroup(CfnUserPoolGroup leadGroup) {
         List<CfnUserPoolUser.AttributeTypeProperty> attributesList = new ArrayList<>();
         attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("email").value("savic.jana15@gmail.com").build());
         attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("given_name").value("Nenad").build());
         attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("family_name").value("Miljanov").build());
 
         CfnUserPoolUser leadUser = new CfnUserPoolUser(this, "engineeringLead",
-                CfnUserPoolUserProps.builder().userPoolId(userPool.getUserPoolId())
+                CfnUserPoolUserProps.builder().userPoolId(leadGroup.getUserPoolId())
                         .username("savic.jana15@gmail.com")
                         .desiredDeliveryMediums(List.of("EMAIL"))
                         .userAttributes(attributesList)
                         .build());
 
         CfnUserPoolUserToGroupAttachment attachLeadToGroup = CfnUserPoolUserToGroupAttachment.Builder.create(this, "attach_lead_to_group")
-                .userPoolId(userPool.getUserPoolId())
+                .userPoolId(leadGroup.getUserPoolId())
                 .groupName(leadGroup.getGroupName())
                 .username(leadUser.getUsername())
                 .build();
@@ -274,20 +292,27 @@ public class InfraStack extends Stack {
 
     }
 
-    private Function buildGetInnovationsLambda() {
-        Function springBootGetFunction = Function.Builder.create(this, "GetInnovationLambda")
-                .handler("org.example.StreamLambdaHandler")
-                .runtime(Runtime.JAVA_11)
-                .memorySize(512)
-                .timeout(Duration.seconds(20))
-                .code(Code.fromAsset("../assets/GetInnovationLambda.jar"))
+
+    private void addAdminToGroup(CfnUserPoolGroup adminGroup) {
+        List<CfnUserPoolUser.AttributeTypeProperty> attributesList = new ArrayList<>();
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("email").value("janasavic47@gmail.com").build());
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("given_name").value("Jana").build());
+        attributesList.add(CfnUserPoolUser.AttributeTypeProperty.builder().name("family_name").value("Savic").build());
+
+        CfnUserPoolUser adminUser = new CfnUserPoolUser(this, "admin",
+                CfnUserPoolUserProps.builder().userPoolId(adminGroup.getUserPoolId())
+                        .username("janasavic47@gmail.com")
+                        .desiredDeliveryMediums(List.of("EMAIL"))
+                        .userAttributes(attributesList)
+                        .build());
+
+        CfnUserPoolUserToGroupAttachment attachAdminToGroup = CfnUserPoolUserToGroupAttachment.Builder.create(this, "attach_admin_to_group")
+                .userPoolId(adminGroup.getUserPoolId())
+                .groupName(adminGroup.getGroupName())
+                .username(adminUser.getUsername())
                 .build();
 
-        // Enable Snapstart
-        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
-        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
-
-        return springBootGetFunction;
+        attachAdminToGroup.getNode().addDependency(adminUser);
     }
 
     private Bucket buildS3Bucket() {
@@ -332,6 +357,23 @@ public class InfraStack extends Stack {
 //                .build();
     }
 
+
+    private Function buildGetInnovationsLambda() {
+        Function springBootGetFunction = Function.Builder.create(this, "GetInnovationLambda")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/GetInnovationLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return springBootGetFunction;
+    }
+
     private Function buildApproveDeclineLambda() {
         Function lambda = Function.Builder.create(this, "ApproveDeclineInnovationLambda")
                 .handler("org.example.ApproveDeclineLambdaHandler")
@@ -370,6 +412,19 @@ public class InfraStack extends Stack {
         cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
 
         return submitInnovationLambda;
+    }
+    private Function buildBuyProductLambda(){
+        Function lambda = Function.Builder.create(this, "BuyProductLambda")
+                .handler("org.example.BuyProductLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/BuyProductLambda.jar"))
+                .build();
+        CfnFunction cfnFunction = (CfnFunction) lambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return lambda;
     }
 
     private void verifyMailBySES(String mail) {

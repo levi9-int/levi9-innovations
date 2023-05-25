@@ -27,6 +27,7 @@
         <module>./backend/LambdaAuthorizerHandler</module>
         <module>./backend/SubmitProductLambda</module>
         <module>./backend/GetProductsLambda</module>
+        <module>./backend/BuyProductLambda</module>
     </modules>
 
 
