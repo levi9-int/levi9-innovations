@@ -29,29 +29,37 @@ img {
     overflow: hidden;
 }
 
+.button:hover {
+  background-color: #a5a5a5;
+}
+
+.button:active {
+  background-color: #8b8b8b;
+}
+
 .user-content {
     padding: 100px;
 }
 
 .popup-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #e9dada;
-    padding: 20px;
-    z-index: 10000;
-  }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #e9dada;
+  padding: 20px;
+  z-index: 10000;
+}
 
-  button {
-  text-decoration: none;
-  padding: 12px;
-  margin: 15px;
-  padding: 10px 20px;
-  background-color: #101110;
-  color: rgb(245, 238, 238);
-  border: none;
-  cursor: pointer;
+button {
+text-decoration: none;
+padding: 12px;
+margin: 15px;
+padding: 10px 20px;
+background-color: #101110;
+color: rgb(245, 238, 238);
+border: none;
+cursor: pointer;
 }
 
 button:hover {
@@ -141,5 +149,23 @@ button:active {
   margin-top: 10px;
   color: green;
 }
+
+.approved {
+  background-color: hsla(120, 60%, 70%, 0.5);
+}
+
+.approved:hover {
+  background-color: hsla(120, 28%, 51%, 0.5);
+}
+
+.rejected {
+  background-color: hsla(0, 100%, 70%, 0.3);
+}
+
+.rejected:hover {
+  background-color: hsla(0, 47%, 52%, 0.3);
+}
+
+
 
   

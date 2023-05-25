@@ -12,6 +12,8 @@ import { LeadComponent } from './lead/lead.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ProductsComponent } from './components/products/products.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     MessageModalComponent,
     EmployeeComponent,
     LeadComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    ProductsComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

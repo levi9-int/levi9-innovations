@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CognitoService } from '../service/cognito.service';
 import { EmployeeService } from '../service/employee.service';
 import { Innovation } from '../models/innovation';
-import { GetUserIdResponse } from '../models/get-userid-response';
+import { fullUserInfoResponse } from '../models/get-userid-response';
 
 @Component({
   selector: 'app-employee',
@@ -12,7 +12,7 @@ import { GetUserIdResponse } from '../models/get-userid-response';
 })
 export class EmployeeComponent implements OnInit{
 
-  getResponse: GetUserIdResponse = {} as GetUserIdResponse;
+  userDetailsList: fullUserInfoResponse = {} as fullUserInfoResponse;
   innovation: Innovation = {} as Innovation;
   showSubmitPopup: boolean = false;
 
@@ -31,8 +31,8 @@ export class EmployeeComponent implements OnInit{
     this.cognitoService.getUser()
     .then((user:any) => {
       if (user) {
-        this.getResponse.name = user.attributes.given_name;
-        this.getResponse.lastname = user.attributes.family_name;
+        this.userDetailsList.name = user.attributes.given_name;
+        this.userDetailsList.lastname = user.attributes.family_name;
         this.innovation.userId = user.username;
         this.fetchUsersInnovations();
       }
@@ -45,7 +45,8 @@ export class EmployeeComponent implements OnInit{
   private fetchUsersInnovations() {
     this.employeeService.fetchUsersInnovations().subscribe({
       next: (res) => {
-        this.getResponse = res;
+        this.employeeService.fullUserInfo = res;
+        this.userDetailsList = res;
       },
       error: (err) => {
         console.log(err);

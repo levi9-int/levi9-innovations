@@ -1,53 +1,43 @@
 <div class="navigate">
-    <!-- Dodajte dugme za otvaranje forme -->
-    <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
-      <img src="https://img.icons8.com/?size=512&id=108652&format=png">
-      <div class="logout">LOGOUT</div>
-    </a>
-  </div>
+  <button>Logged in as: {{ user.givenName }} {{ user.familyName }}</button>
+  <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
+    <img src="https://img.icons8.com/?size=512&id=108652&format=png">
+    <div class="logout">LOGOUT</div>
+  </a>
+</div>
 
-  <div class="dropdown-menu">
-    <a class="dropdown-item" href="#">Regular link</a>
-    <a class="dropdown-item active" href="#">Active link</a>
-    <a class="dropdown-item" href="#">Another link</a>
-  </div>
-  <div class="card d-flex align-items-center m-auto">
-    <label>Logged in as: {{ user.givenName }} {{ user.familyName }}</label>
-  </div> 
-  
-  <div class="user-content">
-    <table class="table table-striped table-bordered">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Title</th>
-          <!-- <th scope="col">Description</th> -->
-          <th scope="col">Innovation Status</th>
-          <!-- <th scope="col">Comment</th> -->
-          <th scope="col">Name</th>
-          <th scope="col">Surname</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let l of innovationUserList" (click)="selectInnovation(l.innovation)">
-          <td>{{ l.innovation.title }}</td>
-          <!-- <td>{{ i.description }}</td> -->
-          <td>{{ l.innovation.innovationStatus }}</td>
-          <!-- <td>{{ i.comment }}</td> -->
-          <td>{{ l.employee.name }}</td>
-          <td>{{ l.employee.lastName }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <div *ngIf="showReviewPopup" class="popup-container">
-      <button type="button" (click)="closeReviewForm()" class="btn-close" aria-label="Close"></button>
-      <h2>Review Innovation</h2><br>
-      <h5>Title: {{ selectedInnovation.title }}</h5><br>
-      <h5>Description: {{ selectedInnovation.description }}</h5><br>
-      <label>Comment:</label>
-      <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br><br>
-      <input type="number" class="form-control" [(ngModel)]="selectedInnovation.tokenAmount" name="tokensAmount" placeholder="Tokens"/><br><br>
-      <button id="approveBtn" (click)="reviewInnovation(true)">Approve</button><br><br>
-      <button id="declineBtn" (click)="reviewInnovation(false)">Decline</button>
-  </div>
+<div class="user-content">
+  <table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Title</th>
+        <!-- <th scope="col">Description</th> -->
+        <th scope="col">Innovation Status</th>
+        <!-- <th scope="col">Comment</th> -->
+        <th scope="col">Name</th>
+        <th scope="col">Surname</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let l of innovationUserList" (click)="selectInnovation(l.innovation)">
+        <td>{{ l.innovation.title }}</td>
+        <!-- <td>{{ i.description }}</td> -->
+        <td>{{ l.innovation.innovationStatus }}</td>
+        <!-- <td>{{ i.comment }}</td> -->
+        <td>{{ l.employee.name }}</td>
+        <td>{{ l.employee.lastName }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="showReviewPopup" class="popup-container">
+    <button type="button" (click)="closeReviewForm()" class="btn-close" aria-label="Close"></button>
+    <h2>Approve/decline</h2><br>
+    <h5>Title: {{ selectedInnovation.title }}</h5><br>
+    <h5>Description: {{ selectedInnovation.description }}</h5>
+    <label>Comment:</label><br>
+    <textarea id="comment" [(ngModel)]="selectedInnovation.comment" name="description"></textarea><br><br>
+    <button id="approveBtn" (click)="reviewInnovation(true)" class="m-auto mt-2 mb-2">Approve</button><br><br>
+    <button id="declineBtn" (click)="reviewInnovation(false)" class="m-auto mt-2">Decline</button>
+</div>

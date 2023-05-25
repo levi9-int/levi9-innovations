@@ -54,8 +54,10 @@ export class SignInComponent implements OnInit{
     this.cognitoService.setAccessToken(cogUser.signInUserSession.idToken);
     if (cogUser.signInUserSession.idToken.payload['cognito:groups'].includes('EmployeeGroup'))
       this.router.navigate(['/employee'])
-    else 
-      this.router.navigate(['/lead'])
+    else if (cogUser.signInUserSession.idToken.payload['cognito:groups'].includes('EngineeringLeadGroup'))
+      this.router.navigate(['/lead']) 
+    else
+      this.router.navigate(['/admin'])
   } 
 
   private displayAlert(message:string) {
