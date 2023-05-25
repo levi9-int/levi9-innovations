@@ -10,6 +10,7 @@ import org.example.enums.InnovationStatus;
 import org.example.exception.NotFoundException;
 import org.example.model.Employee;
 import org.example.model.Innovation;
+import org.example.model.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,9 +22,11 @@ public class InnovationService {
     private final InnovationBuilder innovationRepo = InnovationBuilder.createBuilder();
     private final EmployeeBuilder employeeRepo = EmployeeBuilder.createBuilder();
     private final MailService mailService;
+    private final ProductService productService;
 
-    public InnovationService(MailService mailService) {
+    public InnovationService(MailService mailService, ProductService productService) {
         this.mailService = mailService;
+        this.productService = productService;
     }
 
     public void reviewInnovation(ReviewInnovationRequest reviewInnovationRequest) {
@@ -66,7 +69,8 @@ public class InnovationService {
         Employee emp = employeeRepo.findById(userId);
         if (emp == null) throw new NotFoundException("Employee doesn't exists!");
         List<Innovation> usersInnovations = innovationRepo.getByUserId(userId);
-        return new InnovationUserIdResponse(emp, usersInnovations);
+        List<Product> usersProducts = productService.getUsersProducts(emp);
+        return new InnovationUserIdResponse(emp, usersInnovations, usersProducts);
     }
 
     public List<InnovationWithUserDetails> getByStatus(String status) {

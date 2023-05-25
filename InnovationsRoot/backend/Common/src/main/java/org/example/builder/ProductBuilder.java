@@ -42,4 +42,6 @@ public class ProductBuilder {
         return mapper.scan(Product.class, new DynamoDBScanExpression());
     }
 
+    public Product findById(String id) {return mapper.load(Product.class, id, config);}
+
 }

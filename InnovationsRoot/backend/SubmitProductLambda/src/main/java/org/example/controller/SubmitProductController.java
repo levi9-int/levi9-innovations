@@ -10,6 +10,7 @@ import org.example.mail.MailSender;
 import org.example.model.Employee;
 import org.example.model.Innovation;
 import org.example.model.Product;
+import org.example.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -21,22 +22,19 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class SubmitProductController {
 
-    private final ProductBuilder productBuilder = ProductBuilder.createBuilder();
+    private final ProductService productService;
+
+    public SubmitProductController(ProductService productService){
+        this.productService = productService;
+    }
 
     @PostMapping(
             value = "/add-products",
             produces = "application/json",
             consumes = "application/json"
     )
-
     public ResponseEntity<?> createProduct(@RequestBody ProductRequestDTO productRequest) {
-
-        System.out. println("Kreiraaajajjjjjjj");
-        Product p = new Product(productRequest.getName(), productRequest.getTokenPrice(), productRequest.getAmount());
-
-        System.out.println(p);
-
-        productBuilder.save(p);
+        productService.createProduct(productRequest);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
