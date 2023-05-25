@@ -38,7 +38,6 @@ export class LeadComponent implements OnInit{
       if (user) {
         this.user.givenName = user.attributes.given_name;
         this.user.familyName = user.attributes.family_name;
-        //this.user = user;
         this.fetchPendingInnovations();
       }
       else {

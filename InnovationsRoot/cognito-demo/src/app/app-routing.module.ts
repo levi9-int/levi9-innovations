@@ -4,6 +4,8 @@ import { EmployeeComponent } from './employee/employee.component';
 import { LeadComponent } from './lead/lead.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
 import { SignUpComponent } from './components/sign-up/sign-up.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { ProductsComponent } from './components/products/products.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 
 const routes: Routes = [
@@ -16,15 +18,23 @@ const routes: Routes = [
     component: LeadComponent,
   },
   {
-    path: 'sign-in',
-    component: SignInComponent,
+    path: 'admin',
+    component: AdminComponent,
   },
   {
-    path: 'sign-up',
-    component: SignUpComponent,
+    path: 'products',
+    component: ProductsComponent,
   },
-  { path: '', component: SignUpComponent },
-  { path: '**', component: NotFoundComponent },
+  {
+     path: 'sign-in',
+     component: SignInComponent,
+   },
+   {
+     path: 'sign-up',
+     component: SignUpComponent,
+   },
+   { path: '', component: SignUpComponent },
+   { path: '**', component: NotFoundComponent },
 
 ];
 

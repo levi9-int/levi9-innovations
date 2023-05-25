@@ -1,0 +1,42 @@
+<div class="navigate">
+  <button>Logged in as: {{ user.givenName }} {{ user.familyName }}</button>
+  <button type="button" (click)="showAddProductsForm()">Add product</button>
+  <a (click)="signOutWithCognito()" style="cursor: pointer;" class="button">
+    <img src="https://img.icons8.com/?size=512&id=108652&format=png">
+    <div class="logout">LOGOUT</div>
+  </a>
+</div>
+
+<div class="grid m-5">
+    <div *ngFor="let prod of allProductsList" class="grid__item">
+        <div class="card"><img class="card__img" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=2250&amp;q=80" alt="Snowy Mountains">
+        <div class="card__content">
+            <h1 class="card__header">{{ prod.name }}</h1>
+            <p class="card__text"> Amount:{{ prod.amount }}</p>
+            <button class="card__btn">Token Price: {{ prod.tokenPrice }}</button>
+        </div>
+        </div>
+    </div>
+</div>
+  
+<div *ngIf="showAddProductsPopup">
+  <div class="popup-overlay"></div>
+  <div class="popup-container">
+    <form>
+      <div>
+        <label for="name">Name:</label><br>
+        <input type="name" id="title" [(ngModel)]="craetedProduct.name" name="name">
+      </div>
+      <div>
+        <label for="tokenPrice">Token Price:</label><br>
+        <input type="number" id="tokenPrice" [(ngModel)]="craetedProduct.tokenPrice" name="tokenPrice" min="1">
+      </div>  
+      <div>
+          <label for="amount">Amount:</label><br>
+          <input type="number" id="amount" [(ngModel)]="craetedProduct.amount" name="amount" min="1">
+      </div>    
+      <button id="approveBtn" (click)="addProduct()" class="m-auto mt-2 mb-2">Create</button>
+      <button id="declineBtn" (click)="closeAddProductsForm()" class="m-auto mt-2">Close</button>
+    </form>
+  </div>
+</div>
