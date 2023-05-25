@@ -14,7 +14,7 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @ToString
-@DynamoDBTable(tableName = "product")
+@DynamoDBTable(tableName = "products")
 public class Product {
 
 

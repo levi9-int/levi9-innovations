@@ -11,14 +11,14 @@ public class InfraApp {
         App app = new App();
 
 
-//        // MAIN STACK
-//        new InfraStack(app, "InfraStack", StackProps.builder()
-//                .build());
-
         // MAIN STACK
-        new AnaStack(app, "AnaStack", StackProps.builder()
+        new InfraStack(app, "InfraStack", StackProps.builder()
                 .build());
 
+        //mojj steekk <333
+//        new AnaStack(app, "AnaStack", StackProps.builder()
+//                .build());
+//
 
         // MARKO DEVELOP STACK
 //        new MarkoStack(app, "MarkoStack", StackProps.builder()

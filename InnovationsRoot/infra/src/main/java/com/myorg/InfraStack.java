@@ -44,6 +44,7 @@ public class InfraStack extends Stack {
 
         Table innovationTable = buildInnovationTable();
         Table employeesTable = buildEmployeeTable();
+        Table productTable = buildProductTable();
 
         Function submitInnovationLambda = buildSubmitInnovationLambda();
         innovationTable.grantReadWriteData(submitInnovationLambda);
@@ -59,6 +60,12 @@ public class InfraStack extends Stack {
 
         Function cognitoPostConfirmationLambda = buildCognitoPostConfirmationLambda();
         employeesTable.grantReadWriteData(cognitoPostConfirmationLambda);
+
+        Function submitProductLambda = buildSubmitProductLambda();
+        productTable.grantReadWriteData(submitProductLambda);
+
+        Function getProductsLambda = buildGetAllProductLambda();
+        productTable.grantReadWriteData(getProductsLambda);
 
         UserPool userPool = buildUserPool(cognitoPostConfirmationLambda);
 
@@ -101,6 +108,23 @@ public class InfraStack extends Stack {
                                 .authorizer(customAuthorizer)
                                 .build());
 
+        api.getRoot()
+                .addResource("add-products")
+                .addMethod("POST", new LambdaIntegration(submitProductLambda),
+                        MethodOptions.builder()
+                                .authorizationType(AuthorizationType.CUSTOM)
+                                .authorizer(customAuthorizer)
+                                .build());
+
+        api.getRoot()
+                .addResource("get-products")
+                .addMethod("GET", new LambdaIntegration(getProductsLambda),
+                            MethodOptions.builder()
+                                    .authorizationType(AuthorizationType.CUSTOM)
+                                    .authorizer(customAuthorizer)
+                                    .build());
+
+
     }
 
     private Function buildAuthorizerLambda() {
@@ -140,6 +164,43 @@ public class InfraStack extends Stack {
 
         return lambda;
     }
+
+
+    private Function buildGetAllProductLambda() {
+
+        Function springBootGetFunction = Function.Builder.create(this, "GetProductsLambda")
+                .handler("org.example.StreamLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/GetProductsLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnGetFunction = (CfnFunction) springBootGetFunction.getNode().getDefaultChild();
+        cfnGetFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return springBootGetFunction;
+    }
+
+
+    private Function buildSubmitProductLambda() {
+
+        Function submitProductLambda = Function.Builder.create(this, "SubmitProductLambda")
+                .handler("org.example.SubmitProductLambdaHandler")
+                .runtime(Runtime.JAVA_11)
+                .memorySize(512)
+                .timeout(Duration.seconds(20))
+                .code(Code.fromAsset("../assets/SubmitProductLambda.jar"))
+                .build();
+
+        // Enable Snapstart
+        CfnFunction cfnFunction = (CfnFunction) submitProductLambda.getNode().getDefaultChild();
+        cfnFunction.addPropertyOverride("SnapStart", Map.of("ApplyOn", "PublishedVersions"));
+
+        return submitProductLambda;
+    }
+
 
     private UserPool buildUserPool(Function cognitoPostConfirmationLambda) {
         UserPool userPool = UserPool.Builder.create(this, "user-pool-1")
@@ -379,5 +440,21 @@ public class InfraStack extends Stack {
                 .tableName("employees")
                 .build();
         return new Table(this, "employees", tableProps);
+    }
+
+    private Table buildProductTable() {
+
+        TableProps tableProps = TableProps.builder()
+                .partitionKey(Attribute.builder()
+                        .name("productId")
+                        .type(AttributeType.STRING)
+                        .build())
+                .billingMode(BillingMode.PROVISIONED)
+                .readCapacity(1)
+                .writeCapacity(1)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .tableName("products")
+                .build();
+        return new Table(this, "products", tableProps);
     }
 }
