@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 
-import org.example.util.JWTUtil;
+import org.example.utils.JWTUtil;
 import org.example.util.PolicyDocument;
 import org.example.util.Response;
 import org.example.util.Statement;
@@ -14,6 +14,7 @@ import java.util.*;
 public class LambdaAuthorizerHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
     private static final String EMPLOYEE_GROUP = "EmployeeGroup";
     private static final String LEAD_GROUP = "EngineeringLeadGroup";
+    private static final String ADMIN_GROUP = "AdminGroup";
 
 
     @Override
@@ -38,10 +39,14 @@ public class LambdaAuthorizerHandler implements RequestHandler<APIGatewayProxyRe
         if (userGroup.contains(EMPLOYEE_GROUP)) {
             addStatement(statements, "get-innovation", "GET", proxyContext);
             addStatement(statements, "add-innovation", "POST", proxyContext);
-
+            addStatement(statements, "buy-product", "POST", proxyContext);
+            addStatement(statements, "get-products", "GET", proxyContext);
         } else if (userGroup.contains(LEAD_GROUP)) {
             addStatement(statements, "get-innovation", "GET", proxyContext);
             addStatement(statements, "review-innovation", "PUT", proxyContext);
+        } else if (userGroup.contains(ADMIN_GROUP)) {
+            addStatement(statements, "add-products", "POST", proxyContext);
+            addStatement(statements, "get-products", "GET", proxyContext);
         }
 
         PolicyDocument policyDocument = PolicyDocument.builder().statements(statements)

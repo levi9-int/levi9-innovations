@@ -86,6 +86,7 @@ export class LeadComponent implements OnInit{
     reviewRequst.innovationId = this.selectedInnovation.id;
     reviewRequst.userId = this.selectedInnovation.userId;
     reviewRequst.approved = approved;
+    reviewRequst.tokenAmount = this.selectedInnovation.tokenAmount;
     this.employeeService.reviewInnovations(reviewRequst).subscribe({
       next: (res) => {
         this.fetchPendingInnovations();

@@ -14,5 +14,6 @@ public class ReviewInnovationRequest {
     private String userId;
     private boolean approved;
     private String comment;
+    private Integer tokenAmount;
 
 }

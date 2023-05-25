@@ -34,7 +34,7 @@ export class EmployeeComponent implements OnInit{
         this.userDetailsList.name = user.attributes.given_name;
         this.userDetailsList.lastname = user.attributes.family_name;
         this.innovation.userId = user.username;
-        this.fetchUsersInnovations(user.username);
+        this.fetchUsersInnovations();
       }
       else {
         this.router.navigate(['/sign-in']);
@@ -42,8 +42,8 @@ export class EmployeeComponent implements OnInit{
     })
   }
 
-  private fetchUsersInnovations(username: string) {
-    this.employeeService.fetchUsersInnovations(username).subscribe({
+  private fetchUsersInnovations() {
+    this.employeeService.fetchUsersInnovations().subscribe({
       next: (res) => {
         this.employeeService.fullUserInfo = res;
         this.userDetailsList = res;
@@ -73,7 +73,7 @@ export class EmployeeComponent implements OnInit{
     console.log(this.innovation)
     this.employeeService.addInnovation(this.innovation).subscribe({
       next: (res) => {
-        this.fetchUsersInnovations(this.innovation.userId);
+        this.fetchUsersInnovations();
         this.showSubmitPopup = false;
       },
       error: (err) => {
