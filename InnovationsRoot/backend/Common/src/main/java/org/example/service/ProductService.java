@@ -60,8 +60,11 @@ public class ProductService {
 
     public List<Product> getUsersProducts(Employee employee){
         List<Product> products = new ArrayList<>();
-        for (String productId : employee.getProductIdList()){
-            products.add(productBuilder.findById(productId));
+        List<String> productsIds = employee.getProductIdList();
+        if(productsIds!=null && !productsIds.isEmpty()){
+            for (String productId : employee.getProductIdList()){
+                products.add(productBuilder.findById(productId));
+            }
         }
         return products;
     }
