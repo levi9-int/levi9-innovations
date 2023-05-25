@@ -1,12 +1,11 @@
 package org.example.controller;
 
 import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpHead;
 import org.example.dto.InnovationUserIdResponse;
 import org.example.dto.InnovationWithUserDetails;
+import org.example.exception.BadRequestException;
 import org.example.service.InnovationService;
 import org.example.utils.JWTUtil;
-import org.example.utils.JwtDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,25 +28,18 @@ public class GetInnovationController {
     )
     public ResponseEntity<?> getInnovations(@RequestParam Map<String, String> allParams, @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
 
-        for(String key: allParams.keySet())
-            System.out.println(key);
+        String sub = JWTUtil.getSub(accessToken, "sub");
+        if (sub == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        System.out.println(JwtDecoder.getUsername(accessToken));
-//        String sub = JWTUtil.getSub(accessToken, "sub");
-//        System.out.println(sub);
-
-        if (allParams.containsKey("userId")) {
-            InnovationUserIdResponse innovationDTO = innovationService.getInnovationsForUser(allParams.get("userId"));
-            return new ResponseEntity<>(innovationDTO, HttpStatus.OK);
-
-        } else if (allParams.containsKey("status")) {
+        if (allParams.containsKey("status")) {
             List<InnovationWithUserDetails> innovationsByStatus = innovationService.getByStatus(allParams.get("status"));
             return new ResponseEntity<>(innovationsByStatus, HttpStatus.OK);
 
-        } else if (allParams.isEmpty())
-            return new ResponseEntity<>(innovationService.getAll(), HttpStatus.OK);
-
-        else
+        } else if (allParams.isEmpty()) {
+            InnovationUserIdResponse innovationDTO = innovationService.getInnovationsForUser(sub);
+            return new ResponseEntity<>(innovationDTO, HttpStatus.OK);
+        } else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

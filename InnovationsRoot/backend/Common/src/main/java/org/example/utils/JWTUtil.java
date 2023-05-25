@@ -16,7 +16,9 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class JWTUtil {
     static ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
     private final static String userPoolId = "eu-north-1_KkldHIWwQ";
