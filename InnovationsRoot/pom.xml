@@ -13,7 +13,9 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>InnovationsRoot</name>
+
+  <name>InnovationsRoot</name>
+
     <url>http://maven.apache.org</url>
     <modules>
         <module>infra</module>
@@ -23,7 +25,10 @@
         <module>./backend/ApproveDeclineInnovationLambda</module>
         <module>./backend/CognitoPostConfirmationLambda</module>
         <module>./backend/LambdaAuthorizerHandler</module>
+        <module>./backend/SubmitProductLambda</module>
+        <module>./backend/GetProductsLambda</module>
     </modules>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

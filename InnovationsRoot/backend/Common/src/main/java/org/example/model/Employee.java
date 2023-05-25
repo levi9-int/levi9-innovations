@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -33,6 +34,10 @@ public class Employee {
 
     @DynamoDBAttribute
     private Long tokens;
+
+    @DynamoDBAttribute
+    private List<String>productIdList;
+
 
     public Employee(Map<String, String> userAttributes) {
 
