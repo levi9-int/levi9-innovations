@@ -25,7 +25,7 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) { }
 
-  fetchUsersInnovations(userId: string): Observable<fullUserInfoResponse> {
+  fetchUsersInnovations(): Observable<fullUserInfoResponse> {
     return this.http.get<fullUserInfoResponse>(this.API_PATH + 'get-innovation');
   }
 

@@ -67,6 +67,7 @@ public class InfraStack extends Stack {
 
         Function getProductsLambda = buildGetAllProductLambda();
         productTable.grantReadWriteData(getProductsLambda);
+        employeesTable.grantReadWriteData(getProductsLambda);
 
         Function buyProductLambda = buildBuyProductLambda();
         employeesTable.grantReadWriteData(buyProductLambda);
@@ -90,7 +91,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("add-innovation")
-                .addMethod("POST", new LambdaIntegration(submitInnovationLambda),
+                .addMethod("POST", new LambdaIntegration(submitInnovationLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -98,7 +99,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("get-innovation")
-                .addMethod("GET", new LambdaIntegration(getInnovationsLambda),
+                .addMethod("GET", new LambdaIntegration(getInnovationsLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -106,7 +107,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("review-innovation")
-                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda),
+                .addMethod("PUT", new LambdaIntegration(approveDeclineInnovationLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -115,7 +116,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("add-products")
-                .addMethod("POST", new LambdaIntegration(submitProductLambda),
+                .addMethod("POST", new LambdaIntegration(submitProductLambda.getCurrentVersion()),
                         MethodOptions.builder()
                                 .authorizationType(AuthorizationType.CUSTOM)
                                 .authorizer(customAuthorizer)
@@ -123,7 +124,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("get-products")
-                .addMethod("GET", new LambdaIntegration(getProductsLambda),
+                .addMethod("GET", new LambdaIntegration(getProductsLambda.getCurrentVersion()),
                             MethodOptions.builder()
                                     .authorizationType(AuthorizationType.CUSTOM)
                                     .authorizer(customAuthorizer)
@@ -131,7 +132,7 @@ public class InfraStack extends Stack {
 
         api.getRoot()
                 .addResource("buy-product")
-                .addMethod("POST", new LambdaIntegration(buyProductLambda),
+                .addMethod("POST", new LambdaIntegration(buyProductLambda.getCurrentVersion()),
                 MethodOptions.builder()
                         .authorizationType(AuthorizationType.CUSTOM)
                         .authorizer(customAuthorizer)
@@ -239,7 +240,7 @@ public class InfraStack extends Stack {
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .accountRecovery(AccountRecovery.EMAIL_ONLY)
                 .lambdaTriggers(UserPoolTriggers.builder()
-                        .postConfirmation(cognitoPostConfirmationLambda).build())
+                        .postConfirmation(cognitoPostConfirmationLambda.getCurrentVersion()).build())
                 .build();
 
         UserPoolClient userPoolClient = UserPoolClient.Builder.create(this, "user_pool_client")

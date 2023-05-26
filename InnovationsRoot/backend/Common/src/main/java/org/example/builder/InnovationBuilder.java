@@ -6,13 +6,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
-import org.example.enums.InnovationStatus;
 import org.example.model.Innovation;
 import com.amazonaws.services.dynamodbv2.model.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,18 +61,6 @@ public class InnovationBuilder {
         return mapper.query(Innovation.class, queryExpression);
     }
 
-//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-//
-//        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
-//        Condition scanCondition = new Condition()
-//                .withComparisonOperator(ComparisonOperator.EQ)
-//                .withAttributeValueList(new AttributeValue().withS(userId));
-//        scanFilter.put("userId", scanCondition);
-//        scanExpression.setScanFilter(scanFilter);
-//
-//        return mapper.scan(Innovation.class, scanExpression);
-//    }
-
     public List<Innovation> getByStatus(String status) {
 
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
@@ -89,17 +73,6 @@ public class InnovationBuilder {
                 .withConsistentRead(false);
 
         return mapper.query(Innovation.class, queryExpression);
-
-//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-//
-//        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
-//        Condition scanCondition = new Condition()
-//                .withComparisonOperator(ComparisonOperator.EQ)
-//                .withAttributeValueList(new AttributeValue().withS(status));
-//        scanFilter.put("status", scanCondition);
-//        scanExpression.setScanFilter(scanFilter);
-//
-//        return mapper.scan(Innovation.class, scanExpression);
     }
 
     public Innovation findById(String id) {
@@ -123,7 +96,6 @@ public class InnovationBuilder {
         if (!innovations.isEmpty()) {
             return innovations.get(0);
         } else {
-            System.out.println("No matching innovation found.");
             return null;
         }
     }

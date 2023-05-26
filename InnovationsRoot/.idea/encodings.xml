@@ -12,6 +12,7 @@
     <file url="file://$PROJECT_DIR$/backend/Common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/Common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/GetProductsLambda/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/GetProductsLambda/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/LambdaAuthorizerHandler/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/LambdaAuthorizerHandler/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/SubmitProductLambda/src/main/java" charset="UTF-8" />

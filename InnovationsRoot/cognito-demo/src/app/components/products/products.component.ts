@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { BoughtProduct } from 'src/app/models/BoughtProduct';
 import { Product } from 'src/app/models/product';
 import { CognitoService } from 'src/app/service/cognito.service';
 import { EmployeeService } from 'src/app/service/employee.service';
@@ -13,19 +14,17 @@ import { ProductService } from 'src/app/service/product.service';
 export class ProductsComponent {
 
   allProductsList: Product[] = []; 
-  boughtProductsList: Product[] = []; 
+  boughtProductsList: BoughtProduct[] = []; 
   showAllProducts: boolean = true;
   showBoughtProducts: boolean = false;
   userId: string = "";
-  
-
 
   constructor(private router: Router, private cognitoService: CognitoService, private employeeService: EmployeeService, private productService: ProductService) {}
 
   ngOnInit(): void {
     this.getUserDetails();
     this.fetchAllProducts();
-    this.fetchBoughtInnovations();
+    // this.fetchBoughtInnovations();
   }
 
   private getUserDetails() {
@@ -53,7 +52,14 @@ export class ProductsComponent {
   }
 
   private fetchBoughtInnovations() {
-      this.boughtProductsList = this.employeeService.fullUserInfo.products;
+    this.productService.fetchBoughtProducts().subscribe({
+      next: (res) => {
+        this.boughtProductsList = res;
+      },
+      error: (err) => {
+        alert(err.error);
+      }
+    })
   }
 
   buyProduct(id: string) {
@@ -63,11 +69,12 @@ export class ProductsComponent {
     }
     this.productService.buyProduct(buyProdDto).subscribe({
       next: (res) => {
-        this.boughtProductsList = res;
+        // this.boughtProductsList = res;
+        alert('Purchase successfull!')
         this.fetchAllProducts();
       },
       error: (err) => {
-        alert(err.message);
+        alert(err.error);
         console.log(err);
       }
     })
@@ -86,6 +93,7 @@ export class ProductsComponent {
   }
 
   toggleBoughtProductsForm() {
+    this.fetchBoughtInnovations();
     this.showAllProducts = false;
     this.showBoughtProducts = true;
   }

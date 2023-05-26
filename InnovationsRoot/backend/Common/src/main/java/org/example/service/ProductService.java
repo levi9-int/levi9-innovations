@@ -2,18 +2,17 @@ package org.example.service;
 
 import org.example.builder.EmployeeBuilder;
 import org.example.builder.ProductBuilder;
+import org.example.dto.BoughtProduct;
 import org.example.dto.BuyProductRequest;
 import org.example.dto.BuyProductResponse;
 import org.example.dto.ProductRequestDTO;
 import org.example.exception.BadRequestException;
 import org.example.model.Employee;
 import org.example.model.Product;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.NotFoundException;
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -42,7 +41,8 @@ public class ProductService {
         Long employeesToken = employee.getTokens();
         Long productCost = product.getTokenPrice();
 
-       if(employeesToken < productCost) throw new BadRequestException("Not enough tokens!");
+        if(employeesToken < productCost) throw new BadRequestException("Not enough tokens!");
+
         if(product.getAmount() < 1) throw new BadRequestException("Product not available!");
 
         product.setAmount(product.getAmount()-1);
@@ -67,5 +67,29 @@ public class ProductService {
             }
         }
         return products;
+    }
+
+    public Collection<BoughtProduct> getBoughtProductsByUserId(String userId) {
+        Employee employee = employeeBuilder.findById(userId);
+        if (employee == null) throw new NotFoundException("User doesn't exists!");
+
+        Map<String, BoughtProduct> boughtProducts = new HashMap<>();
+        if (employee.getProductIdList() == null || employee.getProductIdList().isEmpty())
+            return boughtProducts.values();
+
+        for (String productId : employee.getProductIdList()) {
+            if (boughtProducts.containsKey(productId)) {
+                BoughtProduct b = boughtProducts.get(productId);
+                b.setAmount(b.getAmount() + 1);
+                boughtProducts.put(productId, b);
+            }
+            else {
+                Product product = productBuilder.findById(productId);
+                BoughtProduct b = new BoughtProduct(productId, product.getName(), 1);
+                boughtProducts.put(productId, b);
+            }
+        }
+
+        return boughtProducts.values();
     }
 }

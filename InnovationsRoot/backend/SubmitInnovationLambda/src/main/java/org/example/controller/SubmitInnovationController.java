@@ -28,7 +28,6 @@ public class SubmitInnovationController {
     )
     public ResponseEntity<?> createInnovation(@RequestBody InnovationRequest innovationRequest) {
 
-//        System.out.println(principal.getName()); try with Principal
         this.innovationService.createInnovation(innovationRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
 

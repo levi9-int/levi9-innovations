@@ -39,8 +39,8 @@ img {
 
 button {
   text-decoration: none;
-  padding: 12px;
-  margin: 15px;
+  // padding: 12px;
+  // margin: 15px;
   padding: 10px 20px;
   background-color: #101110;
   color: rgb(245, 238, 238);
@@ -66,7 +66,7 @@ button:active {
 
 html {
   box-sizing: border-box;
-  font-size: 62.5%;
+  // font-size: 62.5%;
 }
 
 body {
@@ -86,12 +86,15 @@ body {
 .grid {
   display: grid;
   width: 90%;
-  grid-gap: 6rem;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  grid-gap: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(2rem, 18rem));
   align-items: start;
 }
 
 .grid__item {
+  display: flex;
+  width: 300px;
+  height: 500px;
   background-color: #fff;
   border-radius: 25px 25px 5px 5px;
   overflow: hidden;
@@ -105,16 +108,17 @@ body {
 }
 
 .card__img {
-  display: block;
+  // display: block;
   width: 100%;
-  height: 18rem;
+  height: 40%;
+  border-radius: 0px;
   object-fit: cover;
 }
 .card__content {
-  padding: 3rem 3rem;
+  padding: 20px 20px;
 }
 .card__header {
-  font-size: 3rem;
+  font-size: 30px;
   font-weight: 500;
   color: #0d0d0d;
   margin-bottom: 1.5rem;
@@ -127,10 +131,11 @@ body {
   margin-bottom: 2.5rem;
 }
 .card__btn {
-  display: block;
+  display: flex;
+  justify-content: center;
   width: 100%;
   padding: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 20px;
   text-align: center;
   color: #3363ff;
   background-color: #e6ecff;

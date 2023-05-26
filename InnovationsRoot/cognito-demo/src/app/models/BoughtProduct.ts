@@ -1,7 +1,5 @@
-
-export interface Product {
+export interface BoughtProduct {
     productId: string;
     name: string;
-    tokenPrice: string;
     amount: number;
 }

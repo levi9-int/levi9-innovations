@@ -14,7 +14,9 @@
         <div class="card__content">
             <h1 class="card__header">{{ prod.name }}</h1>
             <p class="card__text"> Amount:{{ prod.amount }}</p>
-            <button class="card__btn" (click)="buyProduct(prod.productId)">Token Price: {{ prod.tokenPrice }} <span>&rarr;</span> Buy it </button>
+            <button *ngIf="prod.amount !== 0" class="card__btn" (click)="buyProduct(prod.productId)"> {{ prod.tokenPrice }} <img src="https://img.icons8.com/?size=512&id=6U2tFbH0pmLw&format=png"></button>
+            <button *ngIf="prod.amount === 0" disabled class="card__btn" >Out of stock</button>
+
         </div>
         </div>
     </div>
@@ -26,7 +28,6 @@
         <div class="card__content">
             <h1 class="card__header">{{ prod.name }}</h1>
             <p class="card__text"> Amount:{{ prod.amount }}</p>
-            <button class="card__btn">Token Price: {{ prod.tokenPrice }}</button>
         </div>
         </div>
     </div>

@@ -3,7 +3,6 @@ package org.example.controller;
 import org.apache.http.HttpHeaders;
 import org.example.dto.InnovationUserIdResponse;
 import org.example.dto.InnovationWithUserDetails;
-import org.example.exception.BadRequestException;
 import org.example.service.InnovationService;
 import org.example.utils.JWTUtil;
 import org.springframework.http.HttpStatus;
